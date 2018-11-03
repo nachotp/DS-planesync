@@ -55,6 +55,8 @@ class Airport extends towerHostServiceBase {
     var idx_pista = -1;
     final Plane arrPlane = new Plane(request.code, request.srcAirport);
 
+    String preCode = "";
+
     for (var i = 0; i < this.landingAmount; i++) {
       if (this.landings[i].code == "") {
         idx_pista = i + 1;
@@ -64,8 +66,6 @@ class Airport extends towerHostServiceBase {
       }
     }
 
-    String preCode = "";
-
     if (idx_pista == -1) {
       landingQueue.insert(0, arrPlane);
       print(landingQueue.toString());
@@ -73,11 +73,17 @@ class Airport extends towerHostServiceBase {
         preCode = landingQueue[1].code;
       }
       airprint("Avión ${request.code} en espera de aterrizaje");
+
     }
-  
+
     yield new Runway()..runway = idx_pista
                        ..airportName = this.name
                        ..preCode = preCode;
+    print("[DEBUG] yield 1");
+    yield new Runway()..runway = idx_pista-1
+                       ..airportName = this.name
+                       ..preCode = preCode;
+    print("[DEBUG] yield 2");
   }
 
   @override
@@ -88,7 +94,7 @@ class Airport extends towerHostServiceBase {
 
 Future<Null> main(List<String> args) async {
   final String address = "0.0.0.0";
-  print("TorreOS 0.2.5 ✈");
+  print("✈ TorreOS 0.2.7 ✈");
   print("[Torre de control] Ingrese nombre del aeropuerto:");
   final name = stdin.readLineSync();
   print("[Torre de control - $name] Cantidad de pistas de aterrizaje:");

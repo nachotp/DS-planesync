@@ -86,12 +86,41 @@ class Airport extends towerHostServiceBase {
     for (Plane plane in landings){
       yield new ArrivingPlane()..code = plane.code
                                ..srcAirport = this.name;
+      final name = stdin.readLineSync();
+
     }
   }
 
   @override
   Stream<Runway> requestTakeoff (ServiceCall call, DepartingPlane request) async* {
-    yield Runway();
+  airprint("${request.code} solicitando pista para despegar...");
+    var idx_pista = -1;
+
+    String preCode = "";
+
+    for (var i = 0; i < this.landingAmount; i++) {
+      if (this.departures[i].code == "") {
+        idx_pista = i + 1;
+        departures[i] = landings[request.runway-1];
+        landings[request.runway-1] = new Plane.blank();
+        airprint("La pista de despegue asignada para ${request.code} es la $idx_pista");
+        break;
+      }
+    }
+
+    if (idx_pista == -1) {
+      departureQueue.insert(0, landings[request.runway-1]);
+      print(landingQueue.toString());
+      if (landingQueue.length > 1){
+        preCode = landingQueue[1].code;
+      }
+      airprint("Avión ${request.code} en espera de despegue");
+
+    }
+
+    yield new Runway()..runway = idx_pista
+                       ..airportName = this.name
+                       ..preCode = preCode;
   }
 }
 

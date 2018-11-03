@@ -13,6 +13,7 @@ message ArrivingPlane {
 
 message DepartingPlane {
     string code = 1;
+    int32 runway = 2;
 }
 
 message CurrentFlights {

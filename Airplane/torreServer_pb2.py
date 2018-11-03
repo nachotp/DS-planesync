@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x11torreServer.proto\">\n\x06Runway\x12\x0e\n\x06runway\x18\x01 \x01(\x05\x12\x13\n\x0b\x61irportName\x18\x02 \x01(\t\x12\x0f\n\x07preCode\x18\x03 \x01(\t\"1\n\rArrivingPlane\x12\x12\n\nsrcAirport\x18\x01 \x01(\t\x12\x0c\n\x04\x63ode\x18\x02 \x01(\t\"\x1e\n\x0e\x44\x65partingPlane\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\"i\n\x0e\x43urrentFlights\x1aW\n\x06\x46light\x12)\n\x04type\x18\x01 \x01(\x0e\x32\x1b.CurrentFlights.Flight.Type\"\"\n\x04Type\x12\x0b\n\x07\x41RRIVAL\x10\x00\x12\r\n\tDEPARTURE\x10\x01\x32\x96\x01\n\ttowerHost\x12+\n\x0erequestLanding\x12\x0e.ArrivingPlane\x1a\x07.Runway0\x01\x12,\n\x0erequestTakeoff\x12\x0f.DepartingPlane\x1a\x07.Runway0\x01\x12.\n\nlistLanded\x12\x0e.ArrivingPlane\x1a\x0e.ArrivingPlane0\x01\x32\x0b\n\tplaneHostb\x06proto3')
+  serialized_pb=_b('\n\x11torreServer.proto\">\n\x06Runway\x12\x0e\n\x06runway\x18\x01 \x01(\x05\x12\x13\n\x0b\x61irportName\x18\x02 \x01(\t\x12\x0f\n\x07preCode\x18\x03 \x01(\t\"1\n\rArrivingPlane\x12\x12\n\nsrcAirport\x18\x01 \x01(\t\x12\x0c\n\x04\x63ode\x18\x02 \x01(\t\".\n\x0e\x44\x65partingPlane\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0e\n\x06runway\x18\x02 \x01(\x05\"i\n\x0e\x43urrentFlights\x1aW\n\x06\x46light\x12)\n\x04type\x18\x01 \x01(\x0e\x32\x1b.CurrentFlights.Flight.Type\"\"\n\x04Type\x12\x0b\n\x07\x41RRIVAL\x10\x00\x12\r\n\tDEPARTURE\x10\x01\x32\x96\x01\n\ttowerHost\x12+\n\x0erequestLanding\x12\x0e.ArrivingPlane\x1a\x07.Runway0\x01\x12,\n\x0erequestTakeoff\x12\x0f.DepartingPlane\x1a\x07.Runway0\x01\x12.\n\nlistLanded\x12\x0e.ArrivingPlane\x1a\x0e.ArrivingPlane0\x01\x32\x0b\n\tplaneHostb\x06proto3')
 )
 
 
@@ -41,8 +41,8 @@ _CURRENTFLIGHTS_FLIGHT_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=239,
-  serialized_end=273,
+  serialized_start=255,
+  serialized_end=289,
 )
 _sym_db.RegisterEnumDescriptor(_CURRENTFLIGHTS_FLIGHT_TYPE)
 
@@ -144,6 +144,13 @@ _DEPARTINGPLANE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='runway', full_name='DepartingPlane.runway', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -157,7 +164,7 @@ _DEPARTINGPLANE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=136,
-  serialized_end=166,
+  serialized_end=182,
 )
 
 
@@ -188,8 +195,8 @@ _CURRENTFLIGHTS_FLIGHT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=186,
-  serialized_end=273,
+  serialized_start=202,
+  serialized_end=289,
 )
 
 _CURRENTFLIGHTS = _descriptor.Descriptor(
@@ -211,8 +218,8 @@ _CURRENTFLIGHTS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=168,
-  serialized_end=273,
+  serialized_start=184,
+  serialized_end=289,
 )
 
 _CURRENTFLIGHTS_FLIGHT.fields_by_name['type'].enum_type = _CURRENTFLIGHTS_FLIGHT_TYPE
@@ -268,8 +275,8 @@ _TOWERHOST = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=276,
-  serialized_end=426,
+  serialized_start=292,
+  serialized_end=442,
   methods=[
   _descriptor.MethodDescriptor(
     name='requestLanding',
@@ -310,8 +317,8 @@ _PLANEHOST = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=1,
   serialized_options=None,
-  serialized_start=428,
-  serialized_end=439,
+  serialized_start=444,
+  serialized_end=455,
   methods=[
 ])
 _sym_db.RegisterServiceDescriptor(_PLANEHOST)

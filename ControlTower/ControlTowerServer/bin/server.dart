@@ -126,7 +126,7 @@ class Airport extends towerHostServiceBase {
 
 Future<Null> main(List<String> args) async {
   final String address = "0.0.0.0";
-  print("✈ TorreOS 0.2.7 ✈");
+  print("✈  TorreOS 0.3.1 ✈");
   print("[Torre de control] Ingrese nombre del aeropuerto:");
   final name = stdin.readLineSync();
   print("[Torre de control - $name] Cantidad de pistas de aterrizaje:");

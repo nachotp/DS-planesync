@@ -14,12 +14,17 @@ class towerHostStub(object):
     Args:
       channel: A grpc.Channel.
     """
-    self.requestLanding = channel.unary_stream(
+    self.requestLanding = channel.unary_unary(
         '/towerHost/requestLanding',
         request_serializer=torreServer__pb2.ArrivingPlane.SerializeToString,
         response_deserializer=torreServer__pb2.Runway.FromString,
         )
-    self.requestTakeoff = channel.unary_stream(
+    self.landingQueueWait = channel.unary_stream(
+        '/towerHost/landingQueueWait',
+        request_serializer=torreServer__pb2.ArrivingPlane.SerializeToString,
+        response_deserializer=torreServer__pb2.Runway.FromString,
+        )
+    self.requestTakeoff = channel.unary_unary(
         '/towerHost/requestTakeoff',
         request_serializer=torreServer__pb2.DepartingPlane.SerializeToString,
         response_deserializer=torreServer__pb2.Runway.FromString,
@@ -36,6 +41,13 @@ class towerHostServicer(object):
   pass
 
   def requestLanding(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def landingQueueWait(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -59,12 +71,17 @@ class towerHostServicer(object):
 
 def add_towerHostServicer_to_server(servicer, server):
   rpc_method_handlers = {
-      'requestLanding': grpc.unary_stream_rpc_method_handler(
+      'requestLanding': grpc.unary_unary_rpc_method_handler(
           servicer.requestLanding,
           request_deserializer=torreServer__pb2.ArrivingPlane.FromString,
           response_serializer=torreServer__pb2.Runway.SerializeToString,
       ),
-      'requestTakeoff': grpc.unary_stream_rpc_method_handler(
+      'landingQueueWait': grpc.unary_stream_rpc_method_handler(
+          servicer.landingQueueWait,
+          request_deserializer=torreServer__pb2.ArrivingPlane.FromString,
+          response_serializer=torreServer__pb2.Runway.SerializeToString,
+      ),
+      'requestTakeoff': grpc.unary_unary_rpc_method_handler(
           servicer.requestTakeoff,
           request_deserializer=torreServer__pb2.DepartingPlane.FromString,
           response_serializer=torreServer__pb2.Runway.SerializeToString,

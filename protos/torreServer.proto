@@ -29,6 +29,7 @@ message CurrentFlights {
 service towerHost {
     rpc requestLanding(ArrivingPlane) returns (stream Runway);
     rpc requestTakeoff(DepartingPlane) returns (stream Runway);
+    rpc listLanded (ArrivingPlane) returns (stream ArrivingPlane);
 }
 
 service planeHost {

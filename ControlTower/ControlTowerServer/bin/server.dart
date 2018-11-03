@@ -87,6 +87,14 @@ class Airport extends towerHostServiceBase {
   }
 
   @override
+  Stream<ArrivingPlane> listLanded(ServiceCall call, ArrivingPlane request) async *{
+    for (Plane plane in landings){
+      yield new ArrivingPlane()..code = plane.code
+                               ..srcAirport = this.name;
+    }
+  }
+
+  @override
   Stream<Runway> requestTakeoff (ServiceCall call, DepartingPlane request) async* {
     yield Runway();
   }

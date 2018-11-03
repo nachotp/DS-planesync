@@ -9,17 +9,21 @@ import 'package:controltower/src/generated/torreServer.pbgrpc.dart';
 class Plane {
   String code;
   String airport;
-  String ip;
-
-  Plane(String code, String airport, String ip) {
+  
+  Plane(String code, String airport) {
     this.code = code;
     this.airport = airport;
-    this.ip = ip;
   }
 
   Plane.blank() {
-    this.code = this.airport = this.ip = "";
+    this.code = this.airport = "";
   }
+
+  @override
+  String toString(){
+    return this.code;
+  }
+
 }
 
 class Airport extends towerHostServiceBase {
@@ -46,12 +50,10 @@ class Airport extends towerHostServiceBase {
   }
 
   @override
-  Future<Runway> requestLanding(ServiceCall call, ArrivingPlane request) async {
+  Stream<Runway> requestLanding(ServiceCall call, ArrivingPlane request) async *{
     airprint("${request.code} solicitando pista para aterrizar...");
     var idx_pista = -1;
-    final ip = call.clientMetadata[':authority'].split(":")[0];
-    print("[DEBUG] conexión con ${ip}");
-    final Plane arrPlane = new Plane(request.code, request.srcAirport, ip);
+    final Plane arrPlane = new Plane(request.code, request.srcAirport);
 
     for (var i = 0; i < this.landingAmount; i++) {
       if (this.landings[i].code == "") {
@@ -66,18 +68,21 @@ class Airport extends towerHostServiceBase {
 
     if (idx_pista == -1) {
       landingQueue.insert(0, arrPlane);
+      print(landingQueue.toString());
+      if (landingQueue.length > 1){
+        preCode = landingQueue[1].code;
+      }
       airprint("Avión ${request.code} en espera de aterrizaje");
     }
   
-    return new Runway()..runway = idx_pista
+    yield new Runway()..runway = idx_pista
                        ..airportName = this.name
                        ..preCode = preCode;
   }
 
   @override
-  Future<Runway> requestTakeoff(
-      ServiceCall call, DepartingPlane request) async {
-    return new Runway();
+  Stream<Runway> requestTakeoff (ServiceCall call, DepartingPlane request) async* {
+    yield Runway();
   }
 }
 

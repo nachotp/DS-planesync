@@ -79,11 +79,6 @@ class Airport extends towerHostServiceBase {
     yield new Runway()..runway = idx_pista
                        ..airportName = this.name
                        ..preCode = preCode;
-    print("[DEBUG] yield 1");
-    yield new Runway()..runway = idx_pista-1
-                       ..airportName = this.name
-                       ..preCode = preCode;
-    print("[DEBUG] yield 2");
   }
 
   @override

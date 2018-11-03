@@ -68,7 +68,7 @@ class Airport extends towerHostServiceBase {
 
     if (idx_pista == -1) {
       landingQueue.insert(0, arrPlane);
-      print(landingQueue.toString());
+      
       if (landingQueue.length > 1){
         preCode = landingQueue[1].code;
       }
@@ -79,6 +79,26 @@ class Airport extends towerHostServiceBase {
     return new Runway()..runway = idx_pista
                        ..airportName = this.name
                        ..preCode = preCode;
+  }
+
+  @override
+  Stream<Runway> landingQueueWait(ServiceCall call, ArrivingPlane request) async *{
+    var idx_pista = -1;
+    final Plane arrPlane = new Plane(request.code, request.srcAirport);
+    while (idx_pista == -1){
+      for (var i = 0; i < this.landingAmount; i++) {
+        if (this.landings[i].code == "" && landingQueue[landingQueue.length-1].code == request.code) {
+          idx_pista = i + 1;
+          landings[i] = arrPlane;
+          airprint("La pista de aterrizaje asignada para ${request.code} es la $idx_pista");
+          break;
+        }
+      }
+    }
+
+    yield new Runway()..runway = idx_pista
+                       ..airportName = this.name
+                       ..preCode = "";
   }
 
   @override

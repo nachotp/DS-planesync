@@ -1,50 +1,25 @@
-# Description
-The hello world server and client demonstrate how to use Dart gRPC libraries to
-perform unary RPCs.
+The [Dart](https://www.dartlang.org/) implementation of
+[gRPC](https://grpc.io/): A high performance, open source, general RPC framework that puts mobile and HTTP/2 first.
 
-See the definition of the hello world service in `protos/helloworld.proto`.
+[![Build Status](https://travis-ci.org/grpc/grpc-dart.svg?branch=master)](https://travis-ci.org/grpc/grpc-dart)
+[![pub package](https://img.shields.io/pub/v/grpc.svg)](https://pub.dartlang.org/packages/grpc)
 
-# Run the sample code
-To compile and run the example, assuming you are in the root of the helloworld
-folder, i.e., .../example/helloworld/, first get the dependencies by running:
+# Usage
 
-```sh
-$ pub get
-```
+See the [Dart gRPC Quickstart](https://grpc.io/docs/quickstart/dart.html).
 
-Then, to run the server:
+# Status
 
-```sh
-$ dart bin/server.dart
-```
+This package is currently in *beta*: It is available for general usage,
+and is considered feature complete.
 
-Likewise, to run the client:
+If you experience issues, or if you have feature requests,
+please [open an issue](https://github.com/dart-lang/grpc-dart/issues).
 
-```sh
-$ dart bin/client.dart
-```
+# Notes
 
-# Regenerate the stubs
+This library requires Dart SDK version 2.0 or later.
 
-If you have made changes to the message or service definition in
-`protos/helloworld.proto` and need to regenerate the corresponding Dart files,
-you will need to have protoc version 3.0.0 or higher and the Dart protoc plugin
-version 0.7.9 or higher on your PATH.
-
-To install protoc, see the instructions on
-[the Protocol Buffers website](https://developers.google.com/protocol-buffers/).
-
-The easiest way to get the Dart protoc plugin is by running
-
-```sh
-$ pub global activate protoc_plugin
-```
-
-and follow the directions to add `~/.pub-cache/bin` to your PATH, if you haven't
-already done so.
-
-You can now regenerate the Dart files by running
-
-```sh
-$ protoc --dart_out=grpc:lib/src/generated -Iprotos protos/helloworld.proto
-```
+It currently supports the the [Flutter](https://flutter.io/) and
+[VM/Server](https://www.dartlang.org/dart-vm) platforms. The potential
+addition of gRPC-Web is tracked in [issue 43](https://github.com/grpc/grpc-dart/issues/43).

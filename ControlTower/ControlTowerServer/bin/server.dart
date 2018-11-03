@@ -50,7 +50,7 @@ class Airport extends towerHostServiceBase {
   }
 
   @override
-  Stream<Runway> requestLanding(ServiceCall call, ArrivingPlane request) async *{
+  Future<Runway> requestLanding(ServiceCall call, ArrivingPlane request) async {
     airprint("${request.code} solicitando pista para aterrizar...");
     var idx_pista = -1;
     final Plane arrPlane = new Plane(request.code, request.srcAirport);
@@ -76,7 +76,7 @@ class Airport extends towerHostServiceBase {
 
     }
 
-    yield new Runway()..runway = idx_pista
+    return new Runway()..runway = idx_pista
                        ..airportName = this.name
                        ..preCode = preCode;
   }
@@ -92,7 +92,7 @@ class Airport extends towerHostServiceBase {
   }
 
   @override
-  Stream<Runway> requestTakeoff (ServiceCall call, DepartingPlane request) async* {
+  Future<Runway> requestTakeoff (ServiceCall call, DepartingPlane request) async {
   airprint("${request.code} solicitando pista para despegar...");
     var idx_pista = -1;
 
@@ -118,7 +118,7 @@ class Airport extends towerHostServiceBase {
 
     }
 
-    yield new Runway()..runway = idx_pista
+    return new Runway()..runway = idx_pista
                        ..airportName = this.name
                        ..preCode = preCode;
   }

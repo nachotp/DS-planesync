@@ -1,1 +1,0 @@
-protoc -Iprotos protos/torreServer.proto --plugin=protoc-gen-dart=c:\Users\thena\AppData\Roaming\Pub\Cache\bin\protoc-gen-dart.bat --dart_out=grpc:lib/src/generated

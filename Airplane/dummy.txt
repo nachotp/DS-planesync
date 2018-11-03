@@ -1,5 +1,5 @@
-LAN LA420
+LAN LA1313
 1
 1
-localhost
+190.163.26.112
 

@@ -18,7 +18,4 @@ with grpc.insecure_channel(torre_inicial + ':50051') as channel:
     print(avion +"Ciudad Torre, "+ numero +", establecidos en radial de pista hacia Ciudad")
     stub = towerHostStub(channel)
     response = stub.requestLanding(ArrivingPlane(code=numero, srcAirport=torre_inicial))
-    if(response.runway==-1):
-            print(avion + "Todas las pistas están ocupadas, el avión predecesor es LA1234")
-    else:
-            print(avion + "Autorizados para aterrizar en pista "+str(response.runway))
+    print(response)

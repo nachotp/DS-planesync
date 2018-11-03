@@ -15,7 +15,7 @@ torre_inicial = input("Torre de Control inicial:\n")
 
 with grpc.insecure_channel(torre_inicial + ':50051') as channel:
     input(avion + "Presione enter para aterrizar")
-    print(avion +"Ciudad Torre, "+ numero +", establecidos en radial de pista hacia Ciudad ")
+    print(avion +"Ciudad Torre, "+ numero +", establecidos en radial de pista hacia Ciudad")
     stub = towerHostStub(channel)
     response = stub.requestLanding(ArrivingPlane(code=numero, srcAirport=torre_inicial))
     if(response.runway==-1):

@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+message Runway {
+    int32 runway = 1;
+    string airportName = 2;
+    string preCode = 3;
+}
+
+message ArrivingPlane {
+    string srcAirport = 1;
+    string code = 2;
+}
+
+message DepartingPlane {
+    string code = 1;
+}
+
+message CurrentFlights {
+    message Flight {
+        enum Type {
+            ARRIVAL = 0;
+            DEPARTURE = 1;
+        }
+        Type type = 1;
+        
+    }
+}
+
+service towerHost {
+    rpc requestLanding(ArrivingPlane) returns (Runway);
+    rpc requestTakeoff(DepartingPlane) returns (Runway);
+}
+
+service planeHost {
+}

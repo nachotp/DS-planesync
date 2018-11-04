@@ -19,11 +19,6 @@ class towerHostStub(object):
         request_serializer=torreServer__pb2.ArrivingPlane.SerializeToString,
         response_deserializer=torreServer__pb2.Runway.FromString,
         )
-    self.landingQueueWait = channel.unary_stream(
-        '/towerHost/landingQueueWait',
-        request_serializer=torreServer__pb2.ArrivingPlane.SerializeToString,
-        response_deserializer=torreServer__pb2.Runway.FromString,
-        )
     self.requestTakeoff = channel.unary_unary(
         '/towerHost/requestTakeoff',
         request_serializer=torreServer__pb2.DepartingPlane.SerializeToString,
@@ -41,13 +36,6 @@ class towerHostServicer(object):
   pass
 
   def requestLanding(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
-    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-    context.set_details('Method not implemented!')
-    raise NotImplementedError('Method not implemented!')
-
-  def landingQueueWait(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -73,11 +61,6 @@ def add_towerHostServicer_to_server(servicer, server):
   rpc_method_handlers = {
       'requestLanding': grpc.unary_unary_rpc_method_handler(
           servicer.requestLanding,
-          request_deserializer=torreServer__pb2.ArrivingPlane.FromString,
-          response_serializer=torreServer__pb2.Runway.SerializeToString,
-      ),
-      'landingQueueWait': grpc.unary_stream_rpc_method_handler(
-          servicer.landingQueueWait,
           request_deserializer=torreServer__pb2.ArrivingPlane.FromString,
           response_serializer=torreServer__pb2.Runway.SerializeToString,
       ),
@@ -107,15 +90,32 @@ class planeHostStub(object):
     Args:
       channel: A grpc.Channel.
     """
+    self.notifyLanding = channel.unary_unary(
+        '/planeHost/notifyLanding',
+        request_serializer=torreServer__pb2.Runway.SerializeToString,
+        response_deserializer=torreServer__pb2.Empty.FromString,
+        )
 
 
 class planeHostServicer(object):
   # missing associated documentation comment in .proto file
   pass
 
+  def notifyLanding(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_planeHostServicer_to_server(servicer, server):
   rpc_method_handlers = {
+      'notifyLanding': grpc.unary_unary_rpc_method_handler(
+          servicer.notifyLanding,
+          request_deserializer=torreServer__pb2.Runway.FromString,
+          response_serializer=torreServer__pb2.Empty.SerializeToString,
+      ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
       'planeHost', rpc_method_handlers)

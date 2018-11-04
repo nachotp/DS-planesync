@@ -4,6 +4,18 @@ from concurrent import futures
 from torreServer_pb2 import *
 from torreServer_pb2_grpc import *
 
+
+
+class Avion(self):
+        def __init__(self):
+                self.aerolinea= aerolinea
+                self.numero = numero
+                self.peso = peso
+                self.torre = torre
+                self.rwy = rwy
+
+
+
 class Airplane(planeHostServicer):
         def notifyLanding(self, request, context):
                 print("Notificado")
@@ -28,16 +40,17 @@ def despegar(torre, avion, numero, rwy):
         print("Pasando por el Gate...\nTodos los pasajeros a bordo y combustible cargado.\nPidiendo instrucciones para despegar...")
         auth = stub.requestTakeoff(DepartingPlane(code=numero, runway = rwy))
 
+avion = Avion()
 avion = input("[Avion] Nombre de la Aerolínea y número de Avión:\n").split()
-aerolinea = avion[0]
-numero = avion[1]
+avion.aerolinea = avion[0]
+avion.numero = avion[1]
 avion = "[Avión - " + numero + "]"
-peso = input("Peso Máximo de carga [kg]:\n")
-combustible = input("Capacidad del tanque de combustible [lt]:\n")
-torre_inicial = input("Torre de Control inicial:\n")
+avion.peso = input("Peso Máximo de carga [kg]:\n")
+avion.combustible = input("Capacidad del tanque de combustible [lt]:\n")
+avion.torre = input("Torre de Control inicial:\n")
 server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 add_planeHostServicer_to_server(Airplane(),server)
 server.add_insecure_port('0.0.0.0:50051')
 server.start()
-rwy = aterrizar(torre_inicial, avion, numero)
-despegar(torre_inicial,avion,numero,rwy)
+avion.rwy = aterrizar(avion.torre, avion.avion, avion.numero)
+despegar(avion.torre, avion.avion, avion.numero, avion.rwy)

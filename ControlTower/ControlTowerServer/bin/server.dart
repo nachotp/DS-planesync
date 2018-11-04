@@ -9,10 +9,18 @@ import 'package:controltower/src/generated/torreServer.pbgrpc.dart';
 class Plane {
   String code;
   String airport;
-  
-  Plane(String code, String airport) {
+  ClientChannel channel;
+  planeHostClient stub; 
+
+  Plane(String code, String airport, String ip) {
     this.code = code;
     this.airport = airport;
+    channel = new ClientChannel(ip,
+      port: 50051,
+      options: const ChannelOptions(
+          credentials: const ChannelCredentials.insecure()));
+    stub = new planeHostClient(channel);
+
   }
 
   Plane.blank() {
@@ -55,7 +63,7 @@ class Airport extends towerHostServiceBase {
   Future<Runway> requestLanding(ServiceCall call, ArrivingPlane request) async {
     airprint("${request.code} solicitando pista para aterrizar...");
     var idx_pista = -1;
-    final Plane arrPlane = new Plane(request.code, request.srcAirport);
+    final Plane arrPlane = new Plane(request.code, request.srcAirport, request.ip);
 
     String preCode = "";
 
@@ -101,18 +109,6 @@ class Airport extends towerHostServiceBase {
   }
 
   @override
-  Stream<Runway> landingQueueWait(ServiceCall call, ArrivingPlane request) async *{
-    var idx_pista = -1;
-    final Plane arrPlane = new Plane(request.code, request.srcAirport);
-    print("Avion ${request.code} en espera de aterrizaje");
-    await assignLandingRunway(request.code, arrPlane).then((idx_pista) {});
-    airprint("La pista de aterrizaje asignada para ${request.code} es la $idx_pista");
-    yield new Runway()..runway = idx_pista
-                       ..airportName = this.name
-                       ..preCode = "";
-  }
-
-  @override
   Stream<ArrivingPlane> listLanded(ServiceCall call, ArrivingPlane request) async *{
     for (Plane plane in landings){
       yield new ArrivingPlane()..code = plane.code
@@ -136,6 +132,12 @@ class Airport extends towerHostServiceBase {
         departures[i] = landings[request.runway-1];
         landings[request.runway-1] = new Plane.blank();
         airprint("La pista de despegue asignada para ${request.code} es la $idx_pista");
+        if (landingQueue.isNotEmpty){
+          final Plane landingPlane = landingQueue.removeLast();
+          await landingPlane.stub.notifyLanding(new Runway()..runway = idx_pista..airportName = this.name..preCode = "");
+          landings[request.runway-1] = landingPlane;
+          airprint("La pista de aterrizaje asignada para ${landingPlane.code} es la ${request.runway-1}");
+        }
         break;
       }
     }

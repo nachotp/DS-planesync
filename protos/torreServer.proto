@@ -1,5 +1,9 @@
 syntax = "proto3";
 
+message Empty {
+
+}
+
 message Runway {
     int32 runway = 1;
     string airportName = 2;
@@ -9,6 +13,7 @@ message Runway {
 message ArrivingPlane {
     string srcAirport = 1;
     string code = 2;
+    string ip = 3;
 }
 
 message DepartingPlane {
@@ -29,10 +34,10 @@ message CurrentFlights {
 
 service towerHost {
     rpc requestLanding(ArrivingPlane) returns (Runway);
-    rpc landingQueueWait(ArrivingPlane) returns(stream Runway);
     rpc requestTakeoff(DepartingPlane) returns (Runway);
     rpc listLanded (ArrivingPlane) returns (stream ArrivingPlane);
 }
 
 service planeHost {
+    rpc notityLanding(Runway) returns (Empty);
 }

@@ -49,6 +49,8 @@ class Airport extends towerHostServiceBase {
     print('[Torre de control - ${this.name}] ${input}');
   }
 
+  
+
   @override
   Future<Runway> requestLanding(ServiceCall call, ArrivingPlane request) async {
     airprint("${request.code} solicitando pista para aterrizar...");
@@ -76,26 +78,35 @@ class Airport extends towerHostServiceBase {
 
     }
 
+    // Imagine that this function is more complex and slow. :)
     return new Runway()..runway = idx_pista
                        ..airportName = this.name
                        ..preCode = preCode;
+  }
+
+  Future<int> assignLandingRunway(String code, Plane arrPlane) async {
+    int idx_pista= -1;
+    while (idx_pista == -1){
+      print("cortame un coco");
+      for (var i = 0; i < this.landingAmount; i++) {
+        if (this.landings[i].code == "" && landingQueue[landingQueue.length-1].code == code) {
+          idx_pista = i + 1;
+          this.landings[i] = arrPlane;
+          
+          break;
+        }
+      }
+    }
+    return idx_pista;
   }
 
   @override
   Stream<Runway> landingQueueWait(ServiceCall call, ArrivingPlane request) async *{
     var idx_pista = -1;
     final Plane arrPlane = new Plane(request.code, request.srcAirport);
-    while (idx_pista == -1){
-      for (var i = 0; i < this.landingAmount; i++) {
-        if (this.landings[i].code == "" && landingQueue[landingQueue.length-1].code == request.code) {
-          idx_pista = i + 1;
-          landings[i] = arrPlane;
-          airprint("La pista de aterrizaje asignada para ${request.code} es la $idx_pista");
-          break;
-        }
-      }
-    }
-
+    print("Avion ${request.code} en espera de aterrizaje");
+    await assignLandingRunway(request.code, arrPlane).then((idx_pista) {});
+    airprint("La pista de aterrizaje asignada para ${request.code} es la $idx_pista");
     yield new Runway()..runway = idx_pista
                        ..airportName = this.name
                        ..preCode = "";
@@ -106,8 +117,9 @@ class Airport extends towerHostServiceBase {
     for (Plane plane in landings){
       yield new ArrivingPlane()..code = plane.code
                                ..srcAirport = this.name;
-      final name = stdin.readLineSync();
 
+      final name = stdin.readLineSync();
+  
     }
   }
 

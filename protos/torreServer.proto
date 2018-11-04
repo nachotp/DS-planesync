@@ -39,5 +39,5 @@ service towerHost {
 }
 
 service planeHost {
-    rpc notityLanding(Runway) returns (Empty);
+    rpc notifyLanding(Runway) returns (Empty);
 }

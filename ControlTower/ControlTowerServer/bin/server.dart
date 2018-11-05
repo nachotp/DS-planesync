@@ -11,10 +11,11 @@ class Plane {
   String airport;
   ClientChannel channel;
   planeHostClient stub; 
-
+  String ip;
   Plane(String code, String airport, String ip) {
     this.code = code;
     this.airport = airport;
+    this.ip = ip;
     channel = new ClientChannel(ip,
       port: 50051,
       options: const ChannelOptions(
@@ -71,7 +72,7 @@ class Airport extends towerHostServiceBase {
       if (this.landings[i].code == "") {
         idx_pista = i + 1;
         landings[i] = arrPlane;
-        airprint("La pista de aterrizaje asignada para ${request.code} es la $idx_pista");
+        airprint("La pista de aterrizaje asignada para ${request.code} - ${request.ip} es la $idx_pista");
         break;
       }
     }
@@ -82,30 +83,13 @@ class Airport extends towerHostServiceBase {
       if (landingQueue.length > 1){
         preCode = landingQueue[1].code;
       }
-      airprint("Avión ${request.code} en espera de aterrizaje");
+      airprint("Avión ${request.code} - ${request.ip} en espera de aterrizaje");
 
     }
 
-    // Imagine that this function is more complex and slow. :)
     return new Runway()..runway = idx_pista
                        ..airportName = this.name
                        ..preCode = preCode;
-  }
-
-  Future<int> assignLandingRunway(String code, Plane arrPlane) async {
-    int idx_pista= -1;
-    while (idx_pista == -1){
-      print("cortame un coco");
-      for (var i = 0; i < this.landingAmount; i++) {
-        if (this.landings[i].code == "" && landingQueue[landingQueue.length-1].code == code) {
-          idx_pista = i + 1;
-          this.landings[i] = arrPlane;
-          
-          break;
-        }
-      }
-    }
-    return idx_pista;
   }
 
   @override
@@ -113,15 +97,13 @@ class Airport extends towerHostServiceBase {
     for (Plane plane in landings){
       yield new ArrivingPlane()..code = plane.code
                                ..srcAirport = this.name;
-
-      final name = stdin.readLineSync();
   
     }
   }
 
   @override
   Future<Runway> requestTakeoff (ServiceCall call, DepartingPlane request) async {
-  airprint("${request.code} solicitando pista para despegar...");
+  airprint("${request.code} en ${request.runway} solicitando pista para despegar...");
     var idx_pista = -1;
 
     String preCode = "";
@@ -134,9 +116,10 @@ class Airport extends towerHostServiceBase {
         airprint("La pista de despegue asignada para ${request.code} es la $idx_pista");
         if (landingQueue.isNotEmpty){
           final Plane landingPlane = landingQueue.removeLast();
-          await landingPlane.stub.notifyLanding(new Runway()..runway = idx_pista..airportName = this.name..preCode = "");
+          airprint("Permitiendo aterrizaje a ${landingPlane.code}");
+          await landingPlane.stub.notifyLanding(new Runway()..runway = request.runway..airportName = this.name..preCode = "");
           landings[request.runway-1] = landingPlane;
-          airprint("La pista de aterrizaje asignada para ${landingPlane.code} es la ${request.runway-1}");
+          airprint("La pista de aterrizaje asignada para ${landingPlane.code} es la ${request.runway}");
         }
         break;
       }
@@ -144,9 +127,8 @@ class Airport extends towerHostServiceBase {
 
     if (idx_pista == -1) {
       departureQueue.insert(0, landings[request.runway-1]);
-      print(landingQueue.toString());
-      if (landingQueue.length > 1){
-        preCode = landingQueue[1].code;
+      if (departureQueue.length > 1){
+        preCode = departureQueue[1].code;
       }
       airprint("Avión ${request.code} en espera de despegue");
 
@@ -156,11 +138,13 @@ class Airport extends towerHostServiceBase {
                        ..airportName = this.name
                        ..preCode = preCode;
   }
+
+
 }
 
 Future<Null> main(List<String> args) async {
   final String address = "0.0.0.0";
-  print("✈  TorreOS 0.3.1 ✈");
+  print("✈  TorreOS 0.4.5 ✈");
   print("[Torre de control] Ingrese nombre del aeropuerto:");
   final name = stdin.readLineSync();
   print("[Torre de control - $name] Cantidad de pistas de aterrizaje:");

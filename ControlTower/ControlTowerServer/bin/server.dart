@@ -108,7 +108,7 @@ class Airport extends towerHostServiceBase {
 
     String preCode = "";
 
-    for (var i = 0; i < this.landingAmount; i++) {
+    for (var i = 0; i < this.arrivalAmount; i++) {
       if (this.departures[i].code == "") {
         idx_pista = i + 1;
         departures[i] = landings[request.runway-1];
@@ -141,9 +141,24 @@ class Airport extends towerHostServiceBase {
 
   @override
   Future<Empty> takeoff(ServiceCall call, DepartingPlane request) async {
+    airprint("Avión ${request.code} ha despegado desde pista ${request.runway}.");
     departures[request.runway-1] = new Plane.blank();
+    print("DEBUG: Avión ELIMINADO");
     if(departureQueue.isNotEmpty){
-      final Plane departingPlane = landingQueue.removeLast();
+      final Plane departingPlane = departureQueue.removeLast();
+      await departingPlane.stub.notifyDeparture(new Runway()..runway = request.runway..airportName = this.name..preCode = "");
+      airprint("La pista de aterrizaje asignada para ${departingPlane.code} es la ${request.runway}");
+      departures[request.runway-1] = departingPlane;
+      int j;
+      for (var i = 0; i < this.landingAmount; i++) {
+        if(landings[i].code == departingPlane.code){
+          print("DEBUG: avión ${departingPlane.code} encontrado en pista de aterrizaje $i");
+          j = i;
+          break;
+        }
+      }
+      landings[j] = new Plane.blank();
+      
     }
     return new Empty();
   }

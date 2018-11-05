@@ -12,12 +12,12 @@ class Plane {
   ClientChannel channel;
   planeHostClient stub; 
   String ip;
-  Plane(String code, String airport, String ip) {
+  Plane(String code, String airport, String ip, int port) {
     this.code = code;
     this.airport = airport;
     this.ip = ip;
     channel = new ClientChannel(ip,
-      port: 50051,
+      port: port,
       options: const ChannelOptions(
           credentials: const ChannelCredentials.insecure()));
     stub = new planeHostClient(channel);
@@ -64,7 +64,7 @@ class Airport extends towerHostServiceBase {
   Future<Runway> requestLanding(ServiceCall call, ArrivingPlane request) async {
     airprint("${request.code} solicitando pista para aterrizar...");
     var idx_pista = -1;
-    final Plane arrPlane = new Plane(request.code, request.srcAirport, request.ip);
+    final Plane arrPlane = new Plane(request.code, request.srcAirport, request.ip, request.port);
 
     String preCode = "";
 
@@ -72,7 +72,7 @@ class Airport extends towerHostServiceBase {
       if (this.landings[i].code == "") {
         idx_pista = i + 1;
         landings[i] = arrPlane;
-        airprint("La pista de aterrizaje asignada para ${request.code} - ${request.ip} es la $idx_pista");
+        airprint("La pista de aterrizaje asignada para ${request.code} - ${request.ip}:${request.port} es la $idx_pista");
         break;
       }
     }
@@ -83,7 +83,7 @@ class Airport extends towerHostServiceBase {
       if (landingQueue.length > 1){
         preCode = landingQueue[1].code;
       }
-      airprint("Avión ${request.code} - ${request.ip} en espera de aterrizaje");
+      airprint("Avión ${request.code} - ${request.ip}:${request.port} en espera de aterrizaje");
 
     }
 
@@ -139,7 +139,14 @@ class Airport extends towerHostServiceBase {
                        ..preCode = preCode;
   }
 
-
+  @override
+  Future<Empty> takeoff(ServiceCall call, DepartingPlane request) async {
+    departures[request.runway-1] = new Plane.blank();
+    if(departureQueue.isNotEmpty){
+      final Plane departingPlane = landingQueue.removeLast();
+    }
+    return new Empty();
+  }
 }
 
 Future<Null> main(List<String> args) async {

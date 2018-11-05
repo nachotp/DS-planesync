@@ -20,6 +20,7 @@ message ArrivingPlane {
 message DepartingPlane {
     string code = 1;
     int32 runway = 2;
+    string airportName = 3;
 }
 
 message CurrentFlights {
@@ -33,10 +34,15 @@ message CurrentFlights {
     }
 }
 
+message AirportInfo {
+    string ip = 1;
+    int32 port = 2;
+}
+
 service towerHost {
     rpc requestLanding(ArrivingPlane) returns (Runway);
     rpc requestTakeoff(DepartingPlane) returns (Runway);
-    rpc takeoff (DepartingPlane) returns (Empty);
+    rpc takeoff (DepartingPlane) returns (AirportInfo);
     rpc listLanded (ArrivingPlane) returns (stream ArrivingPlane);
 }
 

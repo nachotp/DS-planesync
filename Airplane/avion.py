@@ -19,7 +19,7 @@ def aterrizar(avion):
         stub = towerHostStub(channel)
         input("[Avión - " + avion.numero + "] Presione enter para aterrizar")
         print("[Avión - " + avion.numero + "Ciudad Torre, "+ avion.numero +", establecidos en radial de pista hacia Ciudad")
-        respuesta =stub.requestLanding(ArrivingPlane(code=avion.numero, srcAirport=avion.torre))
+        respuesta =stub.requestLanding(ArrivingPlane(code=avion.numero, srcAirport=avion.torre,ip= avion.ip))
         if(respuesta.runway==-1):
             print("Pista ocupada, mantener 5000 pies a la espera de autorización.")
             while(avion.rwy!=-1):
@@ -33,7 +33,7 @@ def despegar(avion):
         input("[Avión - " + avion.numero + "] Presione enter para despegar")
         dest = input("Ingrese destino:\n")
         print("Pasando por el Gate...\nTodos los pasajeros a bordo y combustible cargado.\nPidiendo instrucciones para despegar...")
-        auth = stub.requestTakeoff(DepartingPlane(code=avion.numero, runway = avion.rwy, id= avion.ip))
+        auth = stub.requestTakeoff(DepartingPlane(code=avion.numero, runway = avion.rwy))
         print("Llegue aqui")
 
 
@@ -41,7 +41,7 @@ class Airplane(planeHostServicer):
         def __init__(self,plane):
                 self.avion = plane
         def notifyLanding(self, request, context):
-                self.avion.rwy = request.Runway
+                self.avion.rwy = request.runway
                 print("Notificado")
                 return Empty
 

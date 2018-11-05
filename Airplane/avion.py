@@ -20,11 +20,12 @@ def aterrizar(avion):
         input("[Avión - " + avion.numero + "] Presione enter para aterrizar")
         print("[Avión - " + avion.numero + "Ciudad Torre, "+ avion.numero +", establecidos en radial de pista hacia Ciudad")
         respuesta =stub.requestLanding(ArrivingPlane(code=avion.numero, srcAirport=avion.torre,ip= avion.ip))
-        if(respuesta.runway==-1):
+        avion.rwy = respuesta.runway
+        if(avion.rwy==-1):
             print("Pista ocupada, mantener 5000 pies a la espera de autorización.")
-            while(avion.rwy!=-1):
-                    print("En espera")
-        print("Autorizados para aterrizar en pista " + str(respuesta.runway))
+            while(avion.rwy==-1):
+                    pass
+        print("Autorizados para aterrizar en pista " + str(avion.rwy))
         return respuesta.runway
 
 def despegar(avion):
@@ -43,7 +44,7 @@ class Airplane(planeHostServicer):
         def notifyLanding(self, request, context):
                 self.avion.rwy = request.runway
                 print("Notificado")
-                return Empty
+                return Empty()
 
 avion = input("[Avion] Nombre de la Aerolínea y número de Avión:\n").split()
 aerolinea = avion[0]
@@ -51,7 +52,7 @@ numero = avion[1]
 peso = input("Peso Máximo de carga [kg]:\n")
 combustible = input("Capacidad del tanque de combustible [lt]:\n")
 torre_inicial = input("Torre de Control inicial:\n")
-ip = "192.168.10.2"
+ip = "192.168.10.3"
 plane = Avion(aerolinea, numero,peso,torre_inicial,0,ip)
 server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 add_planeHostServicer_to_server(Airplane(plane),server)

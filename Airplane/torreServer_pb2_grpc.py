@@ -24,10 +24,15 @@ class towerHostStub(object):
         request_serializer=torreServer__pb2.DepartingPlane.SerializeToString,
         response_deserializer=torreServer__pb2.Runway.FromString,
         )
+    self.checkTakeoff = channel.unary_unary(
+        '/towerHost/checkTakeoff',
+        request_serializer=torreServer__pb2.PlaneData.SerializeToString,
+        response_deserializer=torreServer__pb2.TakeoffStatus.FromString,
+        )
     self.takeoff = channel.unary_unary(
         '/towerHost/takeoff',
         request_serializer=torreServer__pb2.DepartingPlane.SerializeToString,
-        response_deserializer=torreServer__pb2.Empty.FromString,
+        response_deserializer=torreServer__pb2.AirportInfo.FromString,
         )
     self.listLanded = channel.unary_stream(
         '/towerHost/listLanded',
@@ -48,6 +53,13 @@ class towerHostServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def requestTakeoff(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def checkTakeoff(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -81,10 +93,15 @@ def add_towerHostServicer_to_server(servicer, server):
           request_deserializer=torreServer__pb2.DepartingPlane.FromString,
           response_serializer=torreServer__pb2.Runway.SerializeToString,
       ),
+      'checkTakeoff': grpc.unary_unary_rpc_method_handler(
+          servicer.checkTakeoff,
+          request_deserializer=torreServer__pb2.PlaneData.FromString,
+          response_serializer=torreServer__pb2.TakeoffStatus.SerializeToString,
+      ),
       'takeoff': grpc.unary_unary_rpc_method_handler(
           servicer.takeoff,
           request_deserializer=torreServer__pb2.DepartingPlane.FromString,
-          response_serializer=torreServer__pb2.Empty.SerializeToString,
+          response_serializer=torreServer__pb2.AirportInfo.SerializeToString,
       ),
       'listLanded': grpc.unary_stream_rpc_method_handler(
           servicer.listLanded,

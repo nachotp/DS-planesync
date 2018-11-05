@@ -145,6 +145,8 @@ class Airport extends towerHostServiceBase {
 Future<Null> main(List<String> args) async {
   final String address = "0.0.0.0";
   print("✈  TorreOS 0.4.5 ✈");
+  print("Ingrese puerto del servidor:");
+  final int port = int.parse(stdin.readLineSync());
   print("[Torre de control] Ingrese nombre del aeropuerto:");
   final name = stdin.readLineSync();
   print("[Torre de control - $name] Cantidad de pistas de aterrizaje:");
@@ -153,6 +155,6 @@ Future<Null> main(List<String> args) async {
   final int cantDespegue = int.parse(stdin.readLineSync());
 
   final server = new Server([new Airport(name, landingAmount, cantDespegue)]);
-  await server.serve(address: address, port: 50051);
+  await server.serve(address: address, port: port);
   print('Aeropuerto operativo en ${address}:${server.port}!');
 }

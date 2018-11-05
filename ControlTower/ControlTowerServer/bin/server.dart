@@ -43,8 +43,9 @@ class Airport extends towerHostServiceBase {
   List<Plane> departures;
   List<Plane> landingQueue;
   List<Plane> departureQueue;
+  Map<String, AirportInfo> airports;
 
-  Airport(String name, int landingAmount, int arrivalAmount) {
+  Airport(String name, int landingAmount, int arrivalAmount, Map<String, AirportInfo> airports) {
     this.name = name;
     this.landingAmount = landingAmount;
     this.arrivalAmount = arrivalAmount;
@@ -52,6 +53,7 @@ class Airport extends towerHostServiceBase {
     departures = new List<Plane>.filled(arrivalAmount, new Plane.blank());
     landingQueue = new List<Plane>();
     departureQueue = new List<Plane>();
+    this.airports = airports;
   }
 
   void airprint(String input) {
@@ -140,19 +142,17 @@ class Airport extends towerHostServiceBase {
   }
 
   @override
-  Future<Empty> takeoff(ServiceCall call, DepartingPlane request) async {
-    airprint("Avión ${request.code} ha despegado desde pista ${request.runway}.");
+  Future<AirportInfo> takeoff(ServiceCall call, DepartingPlane request) async {
+    airprint("Avión ${request.code} ha despegado desde pista ${request.runway} en dirección a ${request.airportName}.");
     departures[request.runway-1] = new Plane.blank();
-    print("DEBUG: Avión ELIMINADO");
     if(departureQueue.isNotEmpty){
       final Plane departingPlane = departureQueue.removeLast();
       await departingPlane.stub.notifyDeparture(new Runway()..runway = request.runway..airportName = this.name..preCode = "");
-      airprint("La pista de aterrizaje asignada para ${departingPlane.code} es la ${request.runway}");
+      airprint("La pista de despegue asignada para ${departingPlane.code} es la ${request.runway}");
       departures[request.runway-1] = departingPlane;
       int j;
       for (var i = 0; i < this.landingAmount; i++) {
         if(landings[i].code == departingPlane.code){
-          print("DEBUG: avión ${departingPlane.code} encontrado en pista de aterrizaje $i");
           j = i;
           break;
         }
@@ -160,7 +160,7 @@ class Airport extends towerHostServiceBase {
       landings[j] = new Plane.blank();
       
     }
-    return new Empty();
+    return airports[request.airportName];
   }
 }
 
@@ -175,8 +175,21 @@ Future<Null> main(List<String> args) async {
   final int landingAmount = int.parse(stdin.readLineSync());
   print("[Torre de control - $name] Cantidad de pistas de despegue:");
   final int cantDespegue = int.parse(stdin.readLineSync());
-
-  final server = new Server([new Airport(name, landingAmount, cantDespegue)]);
+  final Map<String, AirportInfo> airports = new Map();
+  print("Ingrese nombre de aeropuerto disponible o x para terminar:");
+  String nombre = stdin.readLineSync();
+  String ip;
+  int apPort;
+  while (nombre != "x"){
+    print("Ingrese IP del servidor:");
+    ip = stdin.readLineSync();
+    print("Ingrese puerto del servidor:");
+    apPort = int.parse(stdin.readLineSync());
+    airports[nombre] = new AirportInfo()..ip = ip..port = apPort;
+    print("Ingrese nombre de aeropuerto disponible o x para terminar:");
+    nombre = stdin.readLineSync();
+  }
+  final server = new Server([new Airport(name, landingAmount, cantDespegue, airports)]);
   await server.serve(address: address, port: port);
   print('Aeropuerto operativo en ${address}:${server.port}!');
 }

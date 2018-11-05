@@ -1,10 +1,9 @@
 import grpc
 from concurrent import futures
-
+import time
 from torreServer_pb2 import *
 from torreServer_pb2_grpc import *
-
-
+_ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 class Avion():
         def __init__(self,aerolinea,numero,peso,torre,rwy):
@@ -34,14 +33,14 @@ def despegar(avion):
         dest = input("Ingrese destino:\n")
         print("Pasando por el Gate...\nTodos los pasajeros a bordo y combustible cargado.\nPidiendo instrucciones para despegar...")
         auth = stub.requestTakeoff(DepartingPlane(code=avion.numero, runway = avion.rwy))
+        print("Llegue aqui")
 
 
 class Airplane(planeHostServicer):
         def __init__(self,plane):
-                self.rwy = 0
                 self.avion = plane
         def notifyLanding(self, request, context):
-                self.rwy = request.runway
+                self.avion.rwy = request.Runway
                 print("Notificado")
                 return Empty
 
@@ -52,11 +51,9 @@ peso = input("Peso Máximo de carga [kg]:\n")
 combustible = input("Capacidad del tanque de combustible [lt]:\n")
 torre_inicial = input("Torre de Control inicial:\n")
 plane = Avion(aerolinea, numero,peso,torre_inicial,0)
-plane.rwy = aterrizar(plane)
-despegar(plane)
 server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 add_planeHostServicer_to_server(Airplane(plane),server)
 server.add_insecure_port('0.0.0.0:50051')
 server.start()
-#avion.rwy = aterrizar(avion.torre, avion.avion, avion.numero)
-#despegar(avion.torre, avion.avion, avion.numero, avion.rwy)
+plane.rwy = aterrizar(plane)
+despegar(plane)

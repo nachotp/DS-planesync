@@ -142,6 +142,17 @@ class Airport extends towerHostServiceBase {
   }
 
   @override
+  Future<TakeoffStatus> checkTakeoff(ServiceCall call, PlaneData request) async {
+    int errorCode = 0;
+    if (request.currFuel < 4/5 * request.maxFuel){
+      errorCode = 1;
+    } else if (request.currWeight > request.maxWeight){
+      errorCode = 2;
+    }
+    return new TakeoffStatus()..errorCode = errorCode;
+  }
+
+  @override
   Future<AirportInfo> takeoff(ServiceCall call, DepartingPlane request) async {
     airprint("Avión ${request.code} ha despegado desde pista ${request.runway} en dirección a ${request.airportName}.");
     departures[request.runway-1] = new Plane.blank();

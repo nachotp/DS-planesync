@@ -23,6 +23,18 @@ message DepartingPlane {
     string airportName = 3;
 }
 
+message PlaneData {
+    string code = 1;
+    int32 currFuel = 2;
+    int32 maxFuel = 3;
+    int32 currWeight = 4;
+    int32 maxWeight = 5;
+}
+
+message TakeoffStatus {
+    int32 errorCode = 1;
+}
+
 message CurrentFlights {
     message Flight {
         enum Type {
@@ -42,6 +54,7 @@ message AirportInfo {
 service towerHost {
     rpc requestLanding(ArrivingPlane) returns (Runway);
     rpc requestTakeoff(DepartingPlane) returns (Runway);
+    rpc checkTakeoff(PlaneData) returns (TakeoffStatus);
     rpc takeoff (DepartingPlane) returns (AirportInfo);
     rpc listLanded (ArrivingPlane) returns (stream ArrivingPlane);
 }

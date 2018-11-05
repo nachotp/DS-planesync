@@ -6,12 +6,13 @@ from torreServer_pb2_grpc import *
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 class Avion():
-        def __init__(self,aerolinea,numero,peso,torre,rwy):
+        def __init__(self,aerolinea,numero,peso,torre,rwy,ip):
                 self.aerolinea= aerolinea
                 self.numero = numero
                 self.peso = peso
                 self.torre = torre
                 self.rwy = rwy
+                self.ip = ip
 
 def aterrizar(avion):
     with grpc.insecure_channel(avion.torre + ':50051') as channel:
@@ -32,7 +33,7 @@ def despegar(avion):
         input("[Avión - " + avion.numero + "] Presione enter para despegar")
         dest = input("Ingrese destino:\n")
         print("Pasando por el Gate...\nTodos los pasajeros a bordo y combustible cargado.\nPidiendo instrucciones para despegar...")
-        auth = stub.requestTakeoff(DepartingPlane(code=avion.numero, runway = avion.rwy))
+        auth = stub.requestTakeoff(DepartingPlane(code=avion.numero, runway = avion.rwy, id= avion.ip))
         print("Llegue aqui")
 
 
@@ -50,7 +51,8 @@ numero = avion[1]
 peso = input("Peso Máximo de carga [kg]:\n")
 combustible = input("Capacidad del tanque de combustible [lt]:\n")
 torre_inicial = input("Torre de Control inicial:\n")
-plane = Avion(aerolinea, numero,peso,torre_inicial,0)
+ip = "192.168.10.2"
+plane = Avion(aerolinea, numero,peso,torre_inicial,0,ip)
 server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 add_planeHostServicer_to_server(Airplane(plane),server)
 server.add_insecure_port('0.0.0.0:50051')

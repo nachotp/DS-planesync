@@ -104,7 +104,7 @@ class Airport extends towerHostServiceBase {
   }
 
   @override
-  Future<Runway> requestTakeoff (ServiceCall call, DepartingPlane request) async {
+  Future<Runway> requestTakeoff(ServiceCall call, DepartingPlane request) async {
   airprint("${request.code} en ${request.runway} solicitando pista para despegar...");
     var idx_pista = -1;
 
@@ -169,7 +169,13 @@ class Airport extends towerHostServiceBase {
         }
       }
       landings[j] = new Plane.blank();
-      
+      if (landingQueue.isNotEmpty){
+          final Plane landingPlane = landingQueue.removeLast();
+          airprint("Permitiendo aterrizaje a ${landingPlane.code}");
+          await landingPlane.stub.notifyLanding(new Runway()..runway = j+1..airportName = this.name..preCode = "");
+          landings[j] = landingPlane;
+          airprint("La pista de aterrizaje asignada para ${landingPlane.code} es la ${j+1}");
+      }
     }
     return airports[request.airportName];
   }

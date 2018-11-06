@@ -8,6 +8,7 @@ message Runway {
     int32 runway = 1;
     string airportName = 2;
     string preCode = 3;
+    int32 height = 4;
 }
 
 message ArrivingPlane {
@@ -46,6 +47,10 @@ message CurrentFlights {
     }
 }
 
+message planeHeight {
+    int32 height = 1;
+}
+
 message AirportInfo {
     string ip = 1;
     int32 port = 2;
@@ -60,6 +65,6 @@ service towerHost {
 }
 
 service planeHost {
-    rpc notifyLanding(Runway) returns (Empty);
-    rpc notifyDeparture(Runway) returns (Empty);
+    rpc notifyLanding(Runway) returns (planeHeight);
+    rpc notifyDeparture(Runway) returns (planeHeight);
 }

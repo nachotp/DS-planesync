@@ -12,6 +12,7 @@ class Plane {
   ClientChannel channel;
   planeHostClient stub; 
   String ip;
+  int height;
   Plane(String code, String airport, String ip, int port) {
     this.code = code;
     this.airport = airport;
@@ -35,24 +36,54 @@ class Plane {
 
 }
 
+class HeightQueue {
+  List<int> queue;
+  int currHeight;
+
+  HeightQueue(int min){
+    this.currHeight = min;
+    this.queue = new List<int>();
+  }
+
+  int getHeight(){
+    int height;
+    if (queue.isEmpty){
+      height = currHeight;
+      currHeight += 2;
+      return height;
+    } else {
+      return queue.removeLast();
+    }
+  }
+
+  void enqueue(int height){
+    queue.insert(0, height);
+  }
+}
+
+
 class Airport extends towerHostServiceBase {
   String name;
   int landingAmount;
-  int arrivalAmount;
+  int takeoffAmount;
   List<Plane> landings;
   List<Plane> departures;
   List<Plane> landingQueue;
+  HeightQueue landingHeights;
   List<Plane> departureQueue;
+  HeightQueue departureHeights;
   Map<String, AirportInfo> airports;
 
-  Airport(String name, int landingAmount, int arrivalAmount, Map<String, AirportInfo> airports) {
+  Airport(String name, int landingAmount, int takeoffAmount, Map<String, AirportInfo> airports) {
     this.name = name;
     this.landingAmount = landingAmount;
-    this.arrivalAmount = arrivalAmount;
+    this.takeoffAmount = takeoffAmount;
     landings = new List<Plane>.filled(landingAmount, new Plane.blank());
-    departures = new List<Plane>.filled(arrivalAmount, new Plane.blank());
+    departures = new List<Plane>.filled(takeoffAmount, new Plane.blank());
     landingQueue = new List<Plane>();
     departureQueue = new List<Plane>();
+    landingHeights = HeightQueue(1);
+    departureHeights = HeightQueue(2);
     this.airports = airports;
   }
 
@@ -67,7 +98,7 @@ class Airport extends towerHostServiceBase {
     airprint("${request.code} solicitando pista para aterrizar...");
     var idx_pista = -1;
     final Plane arrPlane = new Plane(request.code, request.srcAirport, request.ip, request.port);
-
+    int height = 0;
     String preCode = "";
 
     for (var i = 0; i < this.landingAmount; i++) {
@@ -81,17 +112,18 @@ class Airport extends towerHostServiceBase {
 
     if (idx_pista == -1) {
       landingQueue.insert(0, arrPlane);
-      
+      height = landingHeights.getHeight();
       if (landingQueue.length > 1){
         preCode = landingQueue[1].code;
       }
-      airprint("Avión ${request.code} - ${request.ip}:${request.port} en espera de aterrizaje");
+      airprint("Avión ${request.code} - ${request.ip}:${request.port} en espera de aterrizaje a ${height*200 + 3000} pies de altura");
 
     }
 
     return new Runway()..runway = idx_pista
                        ..airportName = this.name
-                       ..preCode = preCode;
+                       ..preCode = preCode
+                       ..height = height;
   }
 
   @override
@@ -107,19 +139,20 @@ class Airport extends towerHostServiceBase {
   Future<Runway> requestTakeoff(ServiceCall call, DepartingPlane request) async {
   airprint("${request.code} en ${request.runway} solicitando pista para despegar...");
     var idx_pista = -1;
-
     String preCode = "";
 
-    for (var i = 0; i < this.arrivalAmount; i++) {
+    for (var i = 0; i < this.takeoffAmount; i++) {
       if (this.departures[i].code == "") {
         idx_pista = i + 1;
         departures[i] = landings[request.runway-1];
         landings[request.runway-1] = new Plane.blank();
         airprint("La pista de despegue asignada para ${request.code} es la $idx_pista");
+
         if (landingQueue.isNotEmpty){
           final Plane landingPlane = landingQueue.removeLast();
           airprint("Permitiendo aterrizaje a ${landingPlane.code}");
-          await landingPlane.stub.notifyLanding(new Runway()..runway = request.runway..airportName = this.name..preCode = "");
+          final int arrHeight = (await landingPlane.stub.notifyLanding(new Runway()..runway = request.runway..airportName = this.name..preCode = "")).height;
+          landingHeights.enqueue(arrHeight);
           landings[request.runway-1] = landingPlane;
           airprint("La pista de aterrizaje asignada para ${landingPlane.code} es la ${request.runway}");
         }
@@ -138,7 +171,8 @@ class Airport extends towerHostServiceBase {
 
     return new Runway()..runway = idx_pista
                        ..airportName = this.name
-                       ..preCode = preCode;
+                       ..preCode = preCode
+                       ..height = departureHeights.getHeight();
   }
 
   @override
@@ -158,8 +192,9 @@ class Airport extends towerHostServiceBase {
     departures[request.runway-1] = new Plane.blank();
     if(departureQueue.isNotEmpty){
       final Plane departingPlane = departureQueue.removeLast();
-      await departingPlane.stub.notifyDeparture(new Runway()..runway = request.runway..airportName = this.name..preCode = "");
-      airprint("La pista de despegue asignada para ${departingPlane.code} es la ${request.runway}");
+      final int height = (await departingPlane.stub.notifyDeparture(new Runway()..runway = request.runway..airportName = this.name..preCode = "")).height;
+      departureHeights.enqueue(height);
+      airprint("La pista de despegue asignada para ${departingPlane.code} es la ${request.runway} con despegue a altura ${height*200 + 3000} pies");
       departures[request.runway-1] = departingPlane;
       int j;
       for (var i = 0; i < this.landingAmount; i++) {

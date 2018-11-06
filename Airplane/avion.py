@@ -201,7 +201,14 @@ avion = input("Bienvenido al vuelo!\nNombre de la Aerolínea y número de Avión
 aerolinea = avion[0]
 numero = avion[1]
 peso = int(input("Peso Máximo de carga [kg]:\n"))
-combustible = int(input("Capacidad del tanque de combustible [lt]:\n"))
+combustible = int(input("Capacidad del tanque de combustible [lt] (debe ser a lo sumo " + str(peso) + " [lt]):\n"))
+while(1):
+        if(combustible>peso):
+                print("Caracteristica no compatible con peso del avion. Capacidad debe ser a lo sumo " + str(peso) + " [lt] ")
+                combustible = int(input("Capacidad del tanque de combustible [lt]:\n"))
+        else:
+                break
+
 torre_inicial = input("Torre de Control inicial:\n")
 torre_inicial = torre_inicial + ":50051"
 ip = "192.168.10.2"
@@ -219,4 +226,4 @@ while(continuar=="s"):
         despegar(plane)
         continuar = plane.planeinput("¿Desea continuar volando? (s/n)")
 
-plane.planeprint("El avión " + plane.numero + " ha sido derribado!!")
+plane.planeprint("El avión " + plane.numero + " ha terminado su vuelo!!")

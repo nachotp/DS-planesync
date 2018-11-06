@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x11torreServer.proto\"\x07\n\x05\x45mpty\"N\n\x06Runway\x12\x0e\n\x06runway\x18\x01 \x01(\x05\x12\x13\n\x0b\x61irportName\x18\x02 \x01(\t\x12\x0f\n\x07preCode\x18\x03 \x01(\t\x12\x0e\n\x06height\x18\x04 \x01(\x05\"K\n\rArrivingPlane\x12\x12\n\nsrcAirport\x18\x01 \x01(\t\x12\x0c\n\x04\x63ode\x18\x02 \x01(\t\x12\n\n\x02ip\x18\x03 \x01(\t\x12\x0c\n\x04port\x18\x04 \x01(\x05\"C\n\x0e\x44\x65partingPlane\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0e\n\x06runway\x18\x02 \x01(\x05\x12\x13\n\x0b\x61irportName\x18\x03 \x01(\t\"c\n\tPlaneData\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x10\n\x08\x63urrFuel\x18\x02 \x01(\x05\x12\x0f\n\x07maxFuel\x18\x03 \x01(\x05\x12\x12\n\ncurrWeight\x18\x04 \x01(\x05\x12\x11\n\tmaxWeight\x18\x05 \x01(\x05\"\"\n\rTakeoffStatus\x12\x11\n\terrorCode\x18\x01 \x01(\x05\"i\n\x0e\x43urrentFlights\x1aW\n\x06\x46light\x12)\n\x04type\x18\x01 \x01(\x0e\x32\x1b.CurrentFlights.Flight.Type\"\"\n\x04Type\x12\x0b\n\x07\x41RRIVAL\x10\x00\x12\r\n\tDEPARTURE\x10\x01\"\x1d\n\x0bplaneHeight\x12\x0e\n\x06height\x18\x01 \x01(\x05\"\'\n\x0b\x41irportInfo\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\x05\x32\xe8\x01\n\ttowerHost\x12)\n\x0erequestLanding\x12\x0e.ArrivingPlane\x1a\x07.Runway\x12*\n\x0erequestTakeoff\x12\x0f.DepartingPlane\x1a\x07.Runway\x12*\n\x0c\x63heckTakeoff\x12\n.PlaneData\x1a\x0e.TakeoffStatus\x12(\n\x07takeoff\x12\x0f.DepartingPlane\x1a\x0c.AirportInfo\x12.\n\nlistLanded\x12\x0e.ArrivingPlane\x1a\x0e.ArrivingPlane0\x01\x32]\n\tplaneHost\x12&\n\rnotifyLanding\x12\x07.Runway\x1a\x0c.planeHeight\x12(\n\x0fnotifyDeparture\x12\x07.Runway\x1a\x0c.planeHeightb\x06proto3')
+  serialized_pb=_b('\n\x11torreServer.proto\"\x07\n\x05\x45mpty\"N\n\x06Runway\x12\x0e\n\x06runway\x18\x01 \x01(\x05\x12\x13\n\x0b\x61irportName\x18\x02 \x01(\t\x12\x0f\n\x07preCode\x18\x03 \x01(\t\x12\x0e\n\x06height\x18\x04 \x01(\x05\"K\n\rArrivingPlane\x12\x12\n\nsrcAirport\x18\x01 \x01(\t\x12\x0c\n\x04\x63ode\x18\x02 \x01(\t\x12\n\n\x02ip\x18\x03 \x01(\t\x12\x0c\n\x04port\x18\x04 \x01(\x05\"S\n\x0e\x44\x65partingPlane\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0e\n\x06runway\x18\x02 \x01(\x05\x12\x0e\n\x06height\x18\x03 \x01(\x05\x12\x13\n\x0b\x61irportName\x18\x04 \x01(\t\"c\n\tPlaneData\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x10\n\x08\x63urrFuel\x18\x02 \x01(\x05\x12\x0f\n\x07maxFuel\x18\x03 \x01(\x05\x12\x12\n\ncurrWeight\x18\x04 \x01(\x05\x12\x11\n\tmaxWeight\x18\x05 \x01(\x05\"\"\n\rTakeoffStatus\x12\x11\n\terrorCode\x18\x01 \x01(\x05\"i\n\x0e\x43urrentFlights\x1aW\n\x06\x46light\x12)\n\x04type\x18\x01 \x01(\x0e\x32\x1b.CurrentFlights.Flight.Type\"\"\n\x04Type\x12\x0b\n\x07\x41RRIVAL\x10\x00\x12\r\n\tDEPARTURE\x10\x01\"\x1d\n\x0bplaneHeight\x12\x0e\n\x06height\x18\x01 \x01(\x05\"\'\n\x0b\x41irportInfo\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\x05\x32\xe8\x01\n\ttowerHost\x12)\n\x0erequestLanding\x12\x0e.ArrivingPlane\x1a\x07.Runway\x12*\n\x0erequestTakeoff\x12\x0f.DepartingPlane\x1a\x07.Runway\x12*\n\x0c\x63heckTakeoff\x12\n.PlaneData\x1a\x0e.TakeoffStatus\x12(\n\x07takeoff\x12\x0f.DepartingPlane\x1a\x0c.AirportInfo\x12.\n\nlistLanded\x12\x0e.ArrivingPlane\x1a\x0e.ArrivingPlane0\x01\x32W\n\tplaneHost\x12&\n\rnotifyLanding\x12\x07.Runway\x1a\x0c.planeHeight\x12\"\n\x0fnotifyDeparture\x12\x07.Runway\x1a\x06.Emptyb\x06proto3')
 )
 
 
@@ -41,8 +41,8 @@ _CURRENTFLIGHTS_FLIGHT_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=464,
-  serialized_end=498,
+  serialized_start=480,
+  serialized_end=514,
 )
 _sym_db.RegisterEnumDescriptor(_CURRENTFLIGHTS_FLIGHT_TYPE)
 
@@ -197,8 +197,15 @@ _DEPARTINGPLANE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='airportName', full_name='DepartingPlane.airportName', index=2,
-      number=3, type=9, cpp_type=9, label=1,
+      name='height', full_name='DepartingPlane.height', index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='airportName', full_name='DepartingPlane.airportName', index=3,
+      number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -216,7 +223,7 @@ _DEPARTINGPLANE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=187,
-  serialized_end=254,
+  serialized_end=270,
 )
 
 
@@ -274,8 +281,8 @@ _PLANEDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=256,
-  serialized_end=355,
+  serialized_start=272,
+  serialized_end=371,
 )
 
 
@@ -305,8 +312,8 @@ _TAKEOFFSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=357,
-  serialized_end=391,
+  serialized_start=373,
+  serialized_end=407,
 )
 
 
@@ -337,8 +344,8 @@ _CURRENTFLIGHTS_FLIGHT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=411,
-  serialized_end=498,
+  serialized_start=427,
+  serialized_end=514,
 )
 
 _CURRENTFLIGHTS = _descriptor.Descriptor(
@@ -360,8 +367,8 @@ _CURRENTFLIGHTS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=393,
-  serialized_end=498,
+  serialized_start=409,
+  serialized_end=514,
 )
 
 
@@ -391,8 +398,8 @@ _PLANEHEIGHT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=500,
-  serialized_end=529,
+  serialized_start=516,
+  serialized_end=545,
 )
 
 
@@ -429,8 +436,8 @@ _AIRPORTINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=531,
-  serialized_end=570,
+  serialized_start=547,
+  serialized_end=586,
 )
 
 _CURRENTFLIGHTS_FLIGHT.fields_by_name['type'].enum_type = _CURRENTFLIGHTS_FLIGHT_TYPE
@@ -526,8 +533,8 @@ _TOWERHOST = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=573,
-  serialized_end=805,
+  serialized_start=589,
+  serialized_end=821,
   methods=[
   _descriptor.MethodDescriptor(
     name='requestLanding',
@@ -586,8 +593,8 @@ _PLANEHOST = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=1,
   serialized_options=None,
-  serialized_start=807,
-  serialized_end=900,
+  serialized_start=823,
+  serialized_end=910,
   methods=[
   _descriptor.MethodDescriptor(
     name='notifyLanding',
@@ -604,7 +611,7 @@ _PLANEHOST = _descriptor.ServiceDescriptor(
     index=1,
     containing_service=None,
     input_type=_RUNWAY,
-    output_type=_PLANEHEIGHT,
+    output_type=_EMPTY,
     serialized_options=None,
   ),
 ])

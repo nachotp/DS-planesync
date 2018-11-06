@@ -15,18 +15,22 @@ class Avion():
                 self.ip = ip
                 self.altura = altura
                 self.pasajeros = pasajeros
-                self.maxFuel = combustible
-                self.actualFuel = randint(0,combustible)
+                self.maxFuel = int(combustible)
+                self.actualFuel = int(randint(0,combustible))        
                 self.pesoActual = self.actualFuel + self.pasajeros*75
 
         def planeprint(self, mensaje):
                 print("[Avión - " + self.numero + "] " + mensaje)
+
         def planeinput(self, mensaje):
                 return input("[Avión - " + self.numero + "] " + mensaje)
+
         def getPlanedata(self):
                 return PlaneData(code=self.numero, currFuel = self.actualFuel, maxFuel = self.maxFuel, currWeight= self.pesoActual, maxWeight=self.pesoMax)
+
         def getDepartingPlane(self, destino):
                 return DepartingPlane(code=self.numero, runway = self.rwy, airportName = destino)
+
         def getArrivingPlane(self):
                 return ArrivingPlane(code=self.numero, srcAirport=self.torre,ip= self.ip, port = self.puerto)
                 
@@ -35,7 +39,7 @@ def aterrizar(avion):
         stub = towerHostStub(channel)
         avion.planeinput("Presione enter para aterrizar")
         avion.planeprint(avion.numero +", establecidos en radial de pista.")
-        respuesta =stub.requestLanding(ArrivingPlane())
+        respuesta =stub.requestLanding(avion.getArrivingPlane())
         avion.rwy = respuesta.runway
         if(avion.rwy==-1):
                 if(respuesta.preCode==""):
@@ -45,6 +49,8 @@ def aterrizar(avion):
                 while(avion.rwy==-1):
                         pass
         avion.planeprint("Autorizados para aterrizar en pista " + str(avion.rwy))
+        avion.pasajeros = 0
+        avion.actualFuel = avion.maxFuel - randint(1, avion.maxFuel)
 
 def despegar(avion):
     with grpc.insecure_channel(avion.torre) as channel:
@@ -52,22 +58,26 @@ def despegar(avion):
         stub = towerHostStub(channel)
         avion.planeprint("Pasando por el Gate...")
         avion.planeprint("Combustible: " + str(avion.actualFuel) + "/" + str(avion.maxFuel) + " Peso: " + str(avion.pesoActual) + "/" + str(avion.pesoMax))
-        carga = avion.planeinput("¿Desea cargar combustible? (se debe despegar con combustible al máximo)(s/n)")
+        carga = avion.planeinput("¿Desea cargar combustible? (se debe despegar con 4/5 del combustible máximo)(s/n)")
         if(carga=="s"):
-                fuel = avion.planeinput("Ingrese cantidad de combustible: se pueden cargar a lo más "+ str(avion.maxFuel-avion.actualFuel) + "litros: ")
+                fuel = int(avion.planeinput("Ingrese cantidad de combustible: se pueden cargar a lo más "+ str(avion.maxFuel-avion.actualFuel) + " litros: "))
                 while(fuel>avion.maxFuel-avion.actualFuel):
-                        fuel = avion.planeinput("Capacidad máxima excedida, ingresar un valor entre 0 y "+ str(avion.maxFuel-avion.actualFuel) + " litros: ")
+                        fuel = int(avion.planeinput("Capacidad máxima excedida, ingresar un valor entre 0 y "+ str(avion.maxFuel-avion.actualFuel) + " litros: "))
                 avion.actualFuel = avion.actualFuel + fuel
-        pasajeros = avion.planeinput("Ingrese la cantidad de pasajeros en el vuelo (se recomienda no agregar más de "+ str(int((avion.pesoMax-avion.pesoActual)/75)) +" pasajeros):")
+        avion.pasajeros = avion.planeinput("Ingrese la cantidad de pasajeros en el vuelo (se recomienda no agregar más de "+ str(int((avion.pesoMax-avion.pesoActual)/75)) +" pasajeros):")
         avion.planeinput("Presione enter para solicitar pista de despegue")
         dest = avion.planeinput("Ingrese destino:\n")
-        check = stub.checkTakeoff(avion.getPlanedata())
-        avion.planeprint("Verificando combustible y peso del avión.")
-        while(check != 0):
-                if(check == 1):
-                        avion.planeprint("Combustible insuficiente! El tanque debe estar lleno, se deben cargar" + str(avion.maxFuel-avion.actualFuel) + "litros")
+        check = stub.checkTakeoff(avion.getPlanedata()) 
+        avion.planeprint("Verificando combustible y peso del avión. ErrorCode = " + str(check.errorCode))
+        while(check.errorCode != 0):
+                if(check.errorCode == 1):
+                        avion.planeprint("Combustible insuficiente! El tanque debe estar lleno, se deben cargar" + str(avion.maxFuel-avion.actualFuel) + " litros.")
+                        fuel = int(avion.planeinput("Ingrese cantidad de combustible: "))
+                        avion.actualFuel = avion.actualFuel + fuel
                 else:
                         avion.planeprint("Peso excedido. Disminuir la cantidad de pasajeros.")
+                        avion.pasajeros = avion.planeinput("Ingrese la cantidad de pasajeros en el vuelo (se recomienda no agregar más de "+ str(int((avion.pesoMax-avion.pesoActual)/75)) +" pasajeros):")
+                check = stub.checkTakeoff(avion.getPlanedata())
         auth = stub.requestTakeoff(avion.getDepartingPlane(dest))
         avion.rwy = auth.runway
         avion.planeprint("Pidiendo instrucciones para despegar...")
@@ -103,11 +113,11 @@ class Airplane(planeHostServicer):
 avion = input("Bienvenido al vuelo!\nNombre de la Aerolínea y número de Avión:\n").split()
 aerolinea = avion[0]
 numero = avion[1]
-peso = input("Peso Máximo de carga [kg]:\n")
-combustible = input("Capacidad del tanque de combustible [lt]:\n")
+peso = int(input("Peso Máximo de carga [kg]:\n"))
+combustible = int(input("Capacidad del tanque de combustible [lt]:\n"))
 torre_inicial = input("Torre de Control inicial:\n")
 torre_inicial = torre_inicial + ":50051"
-ip = "192.168.43.167"
+ip = "192.168.10.2"
 port = int(input("Puerto servidor: "))
 altura = 10000
 plane = Avion(aerolinea, numero,0,combustible,peso,altura,torre_inicial,0,ip,port)

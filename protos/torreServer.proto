@@ -21,7 +21,8 @@ message ArrivingPlane {
 message DepartingPlane {
     string code = 1;
     int32 runway = 2;
-    string airportName = 3;
+    int32 height = 3;
+    string airportName = 4;
 }
 
 message PlaneData {
@@ -66,5 +67,5 @@ service towerHost {
 
 service planeHost {
     rpc notifyLanding(Runway) returns (planeHeight);
-    rpc notifyDeparture(Runway) returns (planeHeight);
+    rpc notifyDeparture(Runway) returns (Empty);
 }

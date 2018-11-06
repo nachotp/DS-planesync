@@ -140,13 +140,14 @@ class Airport extends towerHostServiceBase {
   airprint("${request.code} en ${request.runway} solicitando pista para despegar...");
     var idx_pista = -1;
     String preCode = "";
-
+    int height = 0;
     for (var i = 0; i < this.takeoffAmount; i++) {
       if (this.departures[i].code == "") {
+        height = departureHeights.getHeight();
         idx_pista = i + 1;
         departures[i] = landings[request.runway-1];
         landings[request.runway-1] = new Plane.blank();
-        airprint("La pista de despegue asignada para ${request.code} es la $idx_pista");
+        airprint("La pista de despegue asignada para ${request.code} es la $idx_pista  con despegue a altura ${height*200 + 3000} pies");
 
         if (landingQueue.isNotEmpty){
           final Plane landingPlane = landingQueue.removeLast();
@@ -172,7 +173,7 @@ class Airport extends towerHostServiceBase {
     return new Runway()..runway = idx_pista
                        ..airportName = this.name
                        ..preCode = preCode
-                       ..height = departureHeights.getHeight();
+                       ..height = height;
   }
 
   @override
@@ -189,11 +190,13 @@ class Airport extends towerHostServiceBase {
   @override
   Future<AirportInfo> takeoff(ServiceCall call, DepartingPlane request) async {
     airprint("Avión ${request.code} ha despegado desde pista ${request.runway} en dirección a ${request.airportName}.");
+    departureHeights.enqueue(request.height);
     departures[request.runway-1] = new Plane.blank();
+    
     if(departureQueue.isNotEmpty){
       final Plane departingPlane = departureQueue.removeLast();
-      final int height = (await departingPlane.stub.notifyDeparture(new Runway()..runway = request.runway..airportName = this.name..preCode = "")).height;
-      departureHeights.enqueue(height);
+      final int height = departureHeights.getHeight();
+      departingPlane.stub.notifyDeparture(new Runway()..runway = request.runway..airportName = this.name..preCode = ""..height = height);
       airprint("La pista de despegue asignada para ${departingPlane.code} es la ${request.runway} con despegue a altura ${height*200 + 3000} pies");
       departures[request.runway-1] = departingPlane;
       int j;
@@ -203,6 +206,7 @@ class Airport extends towerHostServiceBase {
           break;
         }
       }
+      landings[j].channel.shutdown();
       landings[j] = new Plane.blank();
       if (landingQueue.isNotEmpty){
           final Plane landingPlane = landingQueue.removeLast();

@@ -10,7 +10,7 @@ class Plane {
   String code;
   String airport;
   ClientChannel channel;
-  planeHostClient stub; 
+  planeHostClient stub;
   String ip;
   int height;
   Plane(String code, String airport, String ip, int port) {
@@ -18,11 +18,10 @@ class Plane {
     this.airport = airport;
     this.ip = ip;
     channel = new ClientChannel(ip,
-      port: port,
-      options: const ChannelOptions(
-          credentials: const ChannelCredentials.insecure()));
+        port: port,
+        options: const ChannelOptions(
+            credentials: const ChannelCredentials.insecure()));
     stub = new planeHostClient(channel);
-
   }
 
   Plane.blank() {
@@ -30,24 +29,23 @@ class Plane {
   }
 
   @override
-  String toString(){
+  String toString() {
     return this.code;
   }
-
 }
 
 class HeightQueue {
   List<int> queue;
   int currHeight;
 
-  HeightQueue(int min){
+  HeightQueue(int min) {
     this.currHeight = min;
     this.queue = new List<int>();
   }
 
-  int getHeight(){
+  int getHeight() {
     int height;
-    if (queue.isEmpty){
+    if (queue.isEmpty) {
       height = currHeight;
       currHeight += 2;
       return height;
@@ -56,11 +54,10 @@ class HeightQueue {
     }
   }
 
-  void enqueue(int height){
+  void enqueue(int height) {
     queue.insert(0, height);
   }
 }
-
 
 class Airport extends towerHostServiceBase {
   String name;
@@ -74,7 +71,8 @@ class Airport extends towerHostServiceBase {
   HeightQueue departureHeights;
   Map<String, AirportInfo> airports;
 
-  Airport(String name, int landingAmount, int takeoffAmount, Map<String, AirportInfo> airports) {
+  Airport(String name, int landingAmount, int takeoffAmount,
+      Map<String, AirportInfo> airports) {
     this.name = name;
     this.landingAmount = landingAmount;
     this.takeoffAmount = takeoffAmount;
@@ -91,13 +89,12 @@ class Airport extends towerHostServiceBase {
     print('[Torre de control - ${this.name}] ${input}');
   }
 
-  
-
   @override
   Future<Runway> requestLanding(ServiceCall call, ArrivingPlane request) async {
     airprint("${request.code} solicitando pista para aterrizar...");
     var idx_pista = -1;
-    final Plane arrPlane = new Plane(request.code, request.srcAirport, request.ip, request.port);
+    final Plane arrPlane =
+        new Plane(request.code, request.srcAirport, request.ip, request.port);
     int height = 0;
     String preCode = "";
 
@@ -105,7 +102,8 @@ class Airport extends towerHostServiceBase {
       if (this.landings[i].code == "") {
         idx_pista = i + 1;
         landings[i] = arrPlane;
-        airprint("La pista de aterrizaje asignada para ${request.code} - ${request.ip}:${request.port} es la $idx_pista");
+        airprint(
+            "La pista de aterrizaje asignada para ${request.code} - ${request.ip}:${request.port} es la $idx_pista");
         break;
       }
     }
@@ -113,31 +111,35 @@ class Airport extends towerHostServiceBase {
     if (idx_pista == -1) {
       landingQueue.insert(0, arrPlane);
       height = landingHeights.getHeight();
-      if (landingQueue.length > 1){
+      if (landingQueue.length > 1) {
         preCode = landingQueue[1].code;
       }
-      airprint("Avión ${request.code} - ${request.ip}:${request.port} en espera de aterrizaje a ${height*200 + 3000} pies de altura");
-
+      airprint(
+          "Avión ${request.code} - ${request.ip}:${request.port} en espera de aterrizaje a ${height * 200 + 3000} pies de altura");
     }
 
-    return new Runway()..runway = idx_pista
-                       ..airportName = this.name
-                       ..preCode = preCode
-                       ..height = height;
+    return new Runway()
+      ..runway = idx_pista
+      ..airportName = this.name
+      ..preCode = preCode
+      ..height = height;
   }
 
   @override
-  Stream<ArrivingPlane> listLanded(ServiceCall call, ArrivingPlane request) async *{
-    for (Plane plane in landings){
-      yield new ArrivingPlane()..code = plane.code
-                               ..srcAirport = this.name;
-  
+  Stream<ArrivingPlane> listLanded(
+      ServiceCall call, ArrivingPlane request) async* {
+    for (Plane plane in landings) {
+      yield new ArrivingPlane()
+        ..code = plane.code
+        ..srcAirport = this.name;
     }
   }
 
   @override
-  Future<Runway> requestTakeoff(ServiceCall call, DepartingPlane request) async {
-  airprint("${request.code} en ${request.runway} solicitando pista para despegar...");
+  Future<Runway> requestTakeoff(
+      ServiceCall call, DepartingPlane request) async {
+    airprint(
+        "${request.code} en ${request.runway} solicitando pista para despegar...");
     var idx_pista = -1;
     String preCode = "";
     int height = 0;
@@ -145,43 +147,51 @@ class Airport extends towerHostServiceBase {
       if (this.departures[i].code == "") {
         height = departureHeights.getHeight();
         idx_pista = i + 1;
-        departures[i] = landings[request.runway-1];
-        landings[request.runway-1] = new Plane.blank();
-        airprint("La pista de despegue asignada para ${request.code} es la $idx_pista  con despegue a altura ${height*200 + 3000} pies");
+        departures[i] = landings[request.runway - 1];
+        landings[request.runway - 1] = new Plane.blank();
+        airprint(
+            "La pista de despegue asignada para ${request.code} es la $idx_pista  con despegue a altura ${height * 200 + 3000} pies");
 
-        if (landingQueue.isNotEmpty){
+        if (landingQueue.isNotEmpty) {
           final Plane landingPlane = landingQueue.removeLast();
           airprint("Permitiendo aterrizaje a ${landingPlane.code}");
-          final int arrHeight = (await landingPlane.stub.notifyLanding(new Runway()..runway = request.runway..airportName = this.name..preCode = "")).height;
+          final int arrHeight =
+              (await landingPlane.stub.notifyLanding(new Runway()
+                    ..runway = request.runway
+                    ..airportName = this.name
+                    ..preCode = ""))
+                  .height;
           landingHeights.enqueue(arrHeight);
-          landings[request.runway-1] = landingPlane;
-          airprint("La pista de aterrizaje asignada para ${landingPlane.code} es la ${request.runway}");
+          landings[request.runway - 1] = landingPlane;
+          airprint(
+              "La pista de aterrizaje asignada para ${landingPlane.code} es la ${request.runway}");
         }
         break;
       }
     }
 
     if (idx_pista == -1) {
-      departureQueue.insert(0, landings[request.runway-1]);
-      if (departureQueue.length > 1){
+      departureQueue.insert(0, landings[request.runway - 1]);
+      if (departureQueue.length > 1) {
         preCode = departureQueue[1].code;
       }
       airprint("Avión ${request.code} en espera de despegue");
-
     }
 
-    return new Runway()..runway = idx_pista
-                       ..airportName = this.name
-                       ..preCode = preCode
-                       ..height = height;
+    return new Runway()
+      ..runway = idx_pista
+      ..airportName = this.name
+      ..preCode = preCode
+      ..height = height;
   }
 
   @override
-  Future<TakeoffStatus> checkTakeoff(ServiceCall call, PlaneData request) async {
+  Future<TakeoffStatus> checkTakeoff(
+      ServiceCall call, PlaneData request) async {
     int errorCode = 0;
-    if (request.currFuel < 4/5 * request.maxFuel){
+    if (request.currFuel < 4 / 5 * request.maxFuel) {
       errorCode = 1;
-    } else if (request.currWeight > request.maxWeight){
+    } else if (request.currWeight > request.maxWeight) {
       errorCode = 2;
     }
     return new TakeoffStatus()..errorCode = errorCode;
@@ -189,31 +199,40 @@ class Airport extends towerHostServiceBase {
 
   @override
   Future<AirportInfo> takeoff(ServiceCall call, DepartingPlane request) async {
-    airprint("Avión ${request.code} ha despegado desde pista ${request.runway} en dirección a ${request.airportName}.");
+    airprint(
+        "Avión ${request.code} ha despegado desde pista ${request.runway} en dirección a ${request.airportName}.");
     departureHeights.enqueue(request.height);
-    departures[request.runway-1] = new Plane.blank();
-    
-    if(departureQueue.isNotEmpty){
+    departures[request.runway - 1] = new Plane.blank();
+
+    if (departureQueue.isNotEmpty) {
       final Plane departingPlane = departureQueue.removeLast();
       final int height = departureHeights.getHeight();
-      departingPlane.stub.notifyDeparture(new Runway()..runway = request.runway..airportName = this.name..preCode = ""..height = height);
-      airprint("La pista de despegue asignada para ${departingPlane.code} es la ${request.runway} con despegue a altura ${height*200 + 3000} pies");
-      departures[request.runway-1] = departingPlane;
+      departingPlane.stub.notifyDeparture(new Runway()
+        ..runway = request.runway
+        ..airportName = this.name
+        ..preCode = ""
+        ..height = height);
+      airprint(
+          "La pista de despegue asignada para ${departingPlane.code} es la ${request.runway} con despegue a altura ${height * 200 + 3000} pies");
+      departures[request.runway - 1] = departingPlane;
       int j;
       for (var i = 0; i < this.landingAmount; i++) {
-        if(landings[i].code == departingPlane.code){
+        if (landings[i].code == departingPlane.code) {
           j = i;
           break;
         }
       }
-      landings[j].channel.shutdown();
       landings[j] = new Plane.blank();
-      if (landingQueue.isNotEmpty){
-          final Plane landingPlane = landingQueue.removeLast();
-          airprint("Permitiendo aterrizaje a ${landingPlane.code}");
-          await landingPlane.stub.notifyLanding(new Runway()..runway = j+1..airportName = this.name..preCode = "");
-          landings[j] = landingPlane;
-          airprint("La pista de aterrizaje asignada para ${landingPlane.code} es la ${j+1}");
+      if (landingQueue.isNotEmpty) {
+        final Plane landingPlane = landingQueue.removeLast();
+        airprint("Permitiendo aterrizaje a ${landingPlane.code}");
+        await landingPlane.stub.notifyLanding(new Runway()
+          ..runway = j + 1
+          ..airportName = this.name
+          ..preCode = "");
+        landings[j] = landingPlane;
+        airprint(
+            "La pista de aterrizaje asignada para ${landingPlane.code} es la ${j + 1}");
       }
     }
     return airports[request.airportName];
@@ -222,7 +241,7 @@ class Airport extends towerHostServiceBase {
 
 Future<Null> main(List<String> args) async {
   final String address = "0.0.0.0";
-  print("✈  TorreOS 0.4.5 ✈");
+  print("✈  TorreOS 0.7.5 ✈");
   print("Ingrese puerto del servidor:");
   final int port = int.parse(stdin.readLineSync());
   print("[Torre de control] Ingrese nombre del aeropuerto:");
@@ -236,16 +255,19 @@ Future<Null> main(List<String> args) async {
   String nombre = stdin.readLineSync();
   String ip;
   int apPort;
-  while (nombre != "x"){
+  while (nombre != "x") {
     print("Ingrese IP del servidor:");
     ip = stdin.readLineSync();
     print("Ingrese puerto del servidor:");
     apPort = int.parse(stdin.readLineSync());
-    airports[nombre] = new AirportInfo()..ip = ip..port = apPort;
+    airports[nombre] = new AirportInfo()
+      ..ip = ip
+      ..port = apPort;
     print("Ingrese nombre de aeropuerto disponible o x para terminar:");
     nombre = stdin.readLineSync();
   }
-  final server = new Server([new Airport(name, landingAmount, cantDespegue, airports)]);
+  final server =
+      new Server([new Airport(name, landingAmount, cantDespegue, airports)]);
   await server.serve(address: address, port: port);
   print('Aeropuerto operativo en ${address}:${server.port}!');
 }

@@ -37,15 +37,11 @@ message TakeoffStatus {
     int32 errorCode = 1;
 }
 
-message CurrentFlights {
-    message Flight {
-        enum Type {
-            ARRIVAL = 0;
-            DEPARTURE = 1;
-        }
-        Type type = 1;
-        
-    }
+message Flight {
+    string code = 1;
+    string time = 2;
+    string airport = 3;
+    bool type = 4;
 }
 
 message planeHeight {
@@ -62,10 +58,13 @@ service towerHost {
     rpc requestTakeoff(DepartingPlane) returns (Runway);
     rpc checkTakeoff(PlaneData) returns (TakeoffStatus);
     rpc takeoff (DepartingPlane) returns (AirportInfo);
-    rpc listLanded (ArrivingPlane) returns (stream ArrivingPlane);
 }
 
 service planeHost {
     rpc notifyLanding(Runway) returns (planeHeight);
     rpc notifyDeparture(Runway) returns (Empty);
+}
+
+service screenHost {
+    rpc listLanded (stream Flight) returns (Empty);
 }

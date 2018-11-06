@@ -127,12 +127,12 @@ class planeHostStub(object):
     self.notifyLanding = channel.unary_unary(
         '/planeHost/notifyLanding',
         request_serializer=torreServer__pb2.Runway.SerializeToString,
-        response_deserializer=torreServer__pb2.Empty.FromString,
+        response_deserializer=torreServer__pb2.planeHeight.FromString,
         )
     self.notifyDeparture = channel.unary_unary(
         '/planeHost/notifyDeparture',
         request_serializer=torreServer__pb2.Runway.SerializeToString,
-        response_deserializer=torreServer__pb2.Empty.FromString,
+        response_deserializer=torreServer__pb2.planeHeight.FromString,
         )
 
 
@@ -160,12 +160,12 @@ def add_planeHostServicer_to_server(servicer, server):
       'notifyLanding': grpc.unary_unary_rpc_method_handler(
           servicer.notifyLanding,
           request_deserializer=torreServer__pb2.Runway.FromString,
-          response_serializer=torreServer__pb2.Empty.SerializeToString,
+          response_serializer=torreServer__pb2.planeHeight.SerializeToString,
       ),
       'notifyDeparture': grpc.unary_unary_rpc_method_handler(
           servicer.notifyDeparture,
           request_deserializer=torreServer__pb2.Runway.FromString,
-          response_serializer=torreServer__pb2.Empty.SerializeToString,
+          response_serializer=torreServer__pb2.planeHeight.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

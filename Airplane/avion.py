@@ -38,16 +38,48 @@ class Avion():
         def revisarPeso(self):
                 self.planeprint("¡¡¡¡ Peso excedido !!!!")              
                 if(self.actualFuel == (4/5)*self.maxFuel):
-                        minimo =  ceil((self.pesoActual - self.pesoMax)/75)
-                        self.planeprint("Deben bajarse al menos " + minimo + " pasajeros.")
-                
+                        minimo =  int(ceil((self.pesoActual - self.pesoMax)/75))
+                        self.planeprint("Deben bajarse al menos " + str(minimo) + " pasajeros.")
+                        pas = int(self.planeinput("Ingrese cantidad de pasajeros que serán descendidos: (entre " + str(minimo) +" y " + str(self.pasajeros) + " )"))
+                        while(1):
+                                if(pas<minimo):
+                                        self.planeprint("Error: Deben bajarse al menos " + str(minimo) + " pasajeros.")
+                                        pas = int(self.planeinput("Ingrese cantidad de pasajeros que serán descendidos: (entre " + str(minimo) +" y " + str(self.pasajeros) + " )"))
+                                elif(pas>int(self.pasajeros)):
+                                        self.planeprint("Error: No pueden bajarse más pasajeros de los que hay actualmente.")
+                                        pas = int(self.planeinput("Ingrese cantidad de pasajeros que serán descendidos: (entre " + str(minimo) +" y " + str(self.pasajeros) + " )"))
+                                else:
+                                        self.pasajeros = int(self.pasajeros) - pas
+                                        break
                 elif(self.pesoActual-(self.actualFuel-(4/5)*self.maxFuel)<=self.pesoMax):
-                        minimo = self.pesoMax - self.pesoActual-self.pesoMax
-                        self.planeprint("El combustible debe disminuise al menos " + minimo + " litros.")
-
+                        minimo = self.pesoActual - self.pesoMax
+                        self.planeprint("El combustible debe disminuise al menos " + str(minimo) + " litros.")
+                        fuel = int(self.planeinput("Ingrese la cantidad de combustible a disminuir ( entre " + str(minimo) + " y " + str(self.actualFuel-(4/5)*self.maxFuel)+ ")"))
+                        while(1):
+                                if(fuel<minimo):
+                                        self.planeprint("Error: El combustible debe disminuise al menos " + (minimo) + " litros.")
+                                        fuel = int(self.planeinput("Ingrese la cantidad de combustible a disminuir ( entre " + str(minimo) + " y " + str(self.actualFuel-(4/5)*self.maxFuel)+ ")"))
+                                elif(fuel > self.actualFuel-(4/5)*self.maxFuel):
+                                        self.planeprint("Error: El combustible no puede disminuirse más de " + str(self.actualFuel-(4/5)*self.maxFuel) + " litros.")
+                                        fuel = int(self.planeinput("Ingrese la cantidad de combustible a disminuir ( entre " + str(minimo) + " y " + str(self.actualFuel-(4/5)*self.maxFuel)+ ")"))
+                                else:
+                                        self.actualFuel = self.actualFuel - fuel
                 elif(self.pesoActual-(self.actualFuel-(4/5)*self.maxFuel)>self.pesoMax):
-                        self.planeprint("Se debe reducir el combustible en " + (self.actualFuel-(4/5)*self.maxFuel) +" litros, deben bajarse al menos " + int(((self.pesoActual-(self.actualFuel-(4/5)*self.maxFuel))-self.pesoMax)/75)+ " pasajeros!")
+                        self.planeprint("Se debe reducir el combustible en " + str(self.actualFuel-(4/5)*self.maxFuel) +" litros, deben bajarse al menos " + str(int(ceil(((self.pesoActual-(self.actualFuel-(4/5)*self.maxFuel))-self.pesoMax)/75)))+ " pasajeros!")
                         self.actualFuel = (4/5)*self.maxFuel
+                        self.planeprint("Se ha reducido el combustible!!")
+                        minimo = int(ceil(((self.pesoActual-(self.actualFuel-(4/5)*self.maxFuel))-self.pesoMax)/75))
+                        pas = int(self.planeinput("Ingrese cantidad de pasajeros que serán descendidos: (entre " + str(minimo) +" y " + str(self.pasajeros) + " )"))
+                        while(1):
+                                if(pas<minimo):
+                                        self.planeprint("Error: Deben bajarse al menos " + str(minimo) + " pasajeros.")
+                                        pas = int(self.planeinput("Ingrese cantidad de pasajeros que serán descendidos: (entre " + str(minimo) +" y " + str(self.pasajeros) + " )"))
+                                elif(pas>int(self.pasajeros)):
+                                        self.planeprint("Error: No pueden bajarse más pasajeros de los que hay actualmente.")
+                                        pas = int(self.planeinput("Ingrese cantidad de pasajeros que serán descendidos: (entre " + str(minimo) +" y " + str(self.pasajeros) + " )"))
+                                else:
+                                        self.pasajeros = int(self.pasajeros) - pas
+                                        break
                 self.actualizarPeso()
 
         def actualizarPeso(self):
@@ -71,19 +103,19 @@ class Avion():
                 self.planeprint("Todos los pasajeros a bordo y combustible cargado.")
                 self.planeprint("Puertas en automático, cross check y reportar")
                 self.planeprint("Cabina asegurada")
-                self.planeprint("Autorizados para despegar en pista " + str(self.rwy))
+                self.planeprint("Autorizados para despegar en pista " + str(self.rwy) + " y mantener " +  self.verAltura() +" pies.")
                 self.planeinput("Presione enter para despegar")
                 self.planeprint("¡¡ Despegados !!")
 
         def landingMsg(self,aeropuerto):
-                self.planeprint("Autorizados para aterrizar en pista " + str(avion.rwy))
+                self.planeprint("Autorizados para aterrizar en pista " + str(self.rwy))
                 self.planeprint("¡¡¡¡Bienvenidos a " + aeropuerto + "!!!!")
 
         def landingSetup(self):
                 self.pasajeros = 0
                 self.planeprint("Pasando por el Gate...")
                 self.planeprint("Pasajeros han descendido del avión.")
-                self.actualFuel = avion.actualFuel - randint(avion.actualFuel*1/5, avion.actualFuel)
+                self.actualFuel = self.actualFuel - randint(int(self.actualFuel*1/5), self.actualFuel)
                 self.actualizarPeso()
                 
 def aterrizar(avion):
@@ -92,12 +124,13 @@ def aterrizar(avion):
         avion.planeinput("Presione enter para aterrizar")
         avion.planeprint(avion.numero +", establecidos en radial de pista.")
         respuesta =stub.requestLanding(avion.getArrivingPlane())
+        avion.altura = respuesta.height
         avion.rwy = respuesta.runway
         if(avion.rwy==-1):
                 if(respuesta.preCode==""):
                         avion.planeprint("Pista ocupada, mantener " + avion.verAltura() + " pies a la espera de autorización.")
                 else:
-                        avion.planeprint("En cola de despegue, antecedido por "+ respuesta.preCode + ", mantener posición hasta nuevo aviso.")
+                        avion.planeprint("En cola de aterrizaje, antecedido por "+ respuesta.preCode + ", mantener " + avion.verAltura() + " pies")
                 while(avion.rwy==-1):
                         pass
         avion.landingMsg(respuesta.airportName)
@@ -123,6 +156,7 @@ def despegar(avion):
                         avion.revisarPeso()
                 check = stub.checkTakeoff(avion.getPlanedata())
         auth = stub.requestTakeoff(avion.getDepartingPlane(dest))
+        avion.altura = auth.height
         avion.rwy = auth.runway
         avion.planeprint("Pidiendo instrucciones para despegar...")
         if(avion.rwy==-1):
@@ -143,7 +177,7 @@ class Airplane(planeHostServicer):
                 self.avion = plane
         def notifyLanding(self, request, context):
                 self.avion.rwy = request.runway
-                return Empty()
+                return planeHeight(height=self.avion.altura)
         def notifyDeparture(self, request, context):
                 self.avion.rwy = request.runway
                 return Empty()

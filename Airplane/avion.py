@@ -209,10 +209,11 @@ while(1):
         else:
                 break
 
+ip = input("IP del avión:\n")
+port = int(input("Puerto servidor del avión:\n"))
 torre_inicial = input("Torre de Control inicial:\n")
-torre_inicial = torre_inicial + ":50051"
-ip = "192.168.10.2"
-port = int(input("Puerto servidor: "))
+port1 = input("Puerto de la Torre de Control:\n")
+torre_inicial = torre_inicial + ":" + str(port1)
 altura = 10000
 plane = Avion(aerolinea, numero,0,combustible,peso,altura,torre_inicial,0,ip,port)
 server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

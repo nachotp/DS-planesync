@@ -15,29 +15,29 @@ class towerHostStub(object):
       channel: A grpc.Channel.
     """
     self.requestLanding = channel.unary_unary(
-        '/towerHost/requestLanding',
+        '/main.towerHost/requestLanding',
         request_serializer=torreServer__pb2.ArrivingPlane.SerializeToString,
         response_deserializer=torreServer__pb2.Runway.FromString,
         )
     self.requestTakeoff = channel.unary_unary(
-        '/towerHost/requestTakeoff',
+        '/main.towerHost/requestTakeoff',
         request_serializer=torreServer__pb2.DepartingPlane.SerializeToString,
         response_deserializer=torreServer__pb2.Runway.FromString,
         )
     self.checkTakeoff = channel.unary_unary(
-        '/towerHost/checkTakeoff',
+        '/main.towerHost/checkTakeoff',
         request_serializer=torreServer__pb2.PlaneData.SerializeToString,
         response_deserializer=torreServer__pb2.TakeoffStatus.FromString,
         )
     self.takeoff = channel.unary_unary(
-        '/towerHost/takeoff',
+        '/main.towerHost/takeoff',
         request_serializer=torreServer__pb2.DepartingPlane.SerializeToString,
         response_deserializer=torreServer__pb2.AirportInfo.FromString,
         )
-    self.listLanded = channel.unary_stream(
-        '/towerHost/listLanded',
-        request_serializer=torreServer__pb2.ArrivingPlane.SerializeToString,
-        response_deserializer=torreServer__pb2.ArrivingPlane.FromString,
+    self.screenConnect = channel.unary_unary(
+        '/main.towerHost/screenConnect',
+        request_serializer=torreServer__pb2.ScreenInfo.SerializeToString,
+        response_deserializer=torreServer__pb2.Empty.FromString,
         )
 
 
@@ -73,7 +73,7 @@ class towerHostServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def listLanded(self, request, context):
+  def screenConnect(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -103,14 +103,14 @@ def add_towerHostServicer_to_server(servicer, server):
           request_deserializer=torreServer__pb2.DepartingPlane.FromString,
           response_serializer=torreServer__pb2.AirportInfo.SerializeToString,
       ),
-      'listLanded': grpc.unary_stream_rpc_method_handler(
-          servicer.listLanded,
-          request_deserializer=torreServer__pb2.ArrivingPlane.FromString,
-          response_serializer=torreServer__pb2.ArrivingPlane.SerializeToString,
+      'screenConnect': grpc.unary_unary_rpc_method_handler(
+          servicer.screenConnect,
+          request_deserializer=torreServer__pb2.ScreenInfo.FromString,
+          response_serializer=torreServer__pb2.Empty.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
-      'towerHost', rpc_method_handlers)
+      'main.towerHost', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -125,12 +125,12 @@ class planeHostStub(object):
       channel: A grpc.Channel.
     """
     self.notifyLanding = channel.unary_unary(
-        '/planeHost/notifyLanding',
+        '/main.planeHost/notifyLanding',
         request_serializer=torreServer__pb2.Runway.SerializeToString,
         response_deserializer=torreServer__pb2.planeHeight.FromString,
         )
     self.notifyDeparture = channel.unary_unary(
-        '/planeHost/notifyDeparture',
+        '/main.planeHost/notifyDeparture',
         request_serializer=torreServer__pb2.Runway.SerializeToString,
         response_deserializer=torreServer__pb2.Empty.FromString,
         )
@@ -169,5 +169,47 @@ def add_planeHostServicer_to_server(servicer, server):
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
-      'planeHost', rpc_method_handlers)
+      'main.planeHost', rpc_method_handlers)
+  server.add_generic_rpc_handlers((generic_handler,))
+
+
+class screenHostStub(object):
+  # missing associated documentation comment in .proto file
+  pass
+
+  def __init__(self, channel):
+    """Constructor.
+
+    Args:
+      channel: A grpc.Channel.
+    """
+    self.listFlights = channel.stream_unary(
+        '/main.screenHost/listFlights',
+        request_serializer=torreServer__pb2.Flight.SerializeToString,
+        response_deserializer=torreServer__pb2.Empty.FromString,
+        )
+
+
+class screenHostServicer(object):
+  # missing associated documentation comment in .proto file
+  pass
+
+  def listFlights(self, request_iterator, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+
+def add_screenHostServicer_to_server(servicer, server):
+  rpc_method_handlers = {
+      'listFlights': grpc.stream_unary_rpc_method_handler(
+          servicer.listFlights,
+          request_deserializer=torreServer__pb2.Flight.FromString,
+          response_serializer=torreServer__pb2.Empty.SerializeToString,
+      ),
+  }
+  generic_handler = grpc.method_handlers_generic_handler(
+      'main.screenHost', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))

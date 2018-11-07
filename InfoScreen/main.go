@@ -1,23 +1,3 @@
-/*
- *
- * Copyright 2015 gRPC authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-
-//go:generate protoc -I ../helloworld --go_out=plugins=grpc:../helloworld ../helloworld/helloworld.proto
-
 package main
 
 import (
@@ -25,6 +5,8 @@ import (
 	"io"
 	"log"
 	"net"
+	"os"
+	"text/tabwriter"
 	"time"
 
 	"golang.org/x/net/context"
@@ -32,21 +14,27 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-// server is used to implement helloworld.GreeterServer.
 type server struct{}
 
 func (s *server) ListFlights(stream ScreenHost_ListFlightsServer) error {
 	var i int
 	i = 0
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 5, 0, 1, ' ', tabwriter.TabIndent)
+	fmt.Print("[Pantalla de información - ubicación]\n")
+	fmt.Fprintln(w, "Departures\t\t\t\t|	Arrivals\t\t\t\t")
+	fmt.Fprintln(w, "-----------\t\t\t\t|	---------\t\t\t\t")
+	fmt.Fprintln(w, "Avión\tDestino\tPista\tHora\t|	Avión\tProveniente\tPista\tHora")
 	for {
 		flight, err := stream.Recv()
 		if err == io.EOF {
+			w.Flush()
+			fmt.Print("\n---------------------------------------------------------------\n")
 			return stream.SendMsg(&Empty{})
 		}
-		fmt.Printf("Vuelo %x\n", i)
+		s := fmt.Sprintf("%s\t%s\t%d\t%s\t|	\t\t\t", flight.Code, flight.Airport, flight.Type, flight.Time)
+		fmt.Fprintln(w, s)
 		i++
-		fmt.Printf("%s\n", flight.Code)
-
 	}
 }
 
@@ -63,9 +51,12 @@ func main() {
 	fmt.Scan(&twPort)
 	fmt.Print("\n")
 
-	conn, _ := grpc.Dial(fmt.Sprintf("%s:%d", twIP, twPort), grpc.WithInsecure())
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", twIP, twPort), grpc.WithInsecure())
 	c := NewTowerHostClient(conn)
-	ctx, _ := context.WithTimeout(context.Background(), time.Second)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
 	c.ScreenConnect(ctx, &ScreenInfo{Ip: ip, Port: port})
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", port))
 	if err != nil {

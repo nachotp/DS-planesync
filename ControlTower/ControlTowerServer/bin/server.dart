@@ -263,7 +263,7 @@ class Airport extends towerHostServiceBase {
       if (pl.code != ""){
         currflights.add(new Flight()..code = pl.code
                                     ..airport = pl.airport
-                                    ..time = ""
+                                    ..time = "12:00"
                                     ..type = 0);
       }
     }
@@ -271,7 +271,7 @@ class Airport extends towerHostServiceBase {
     for (Plane pl in landingQueue){
       currflights.add(new Flight()..code = pl.code
                                   ..airport = pl.airport
-                                  ..time = ""
+                                  ..time = "12:00"
                                   ..type = 1);
     }
 
@@ -279,7 +279,7 @@ class Airport extends towerHostServiceBase {
       if (pl.code != ""){
         currflights.add(new Flight()..code = pl.code
                                     ..airport = pl.airport
-                                    ..time = ""
+                                    ..time = "12:00"
                                     ..type = 2);
       }
     }
@@ -287,7 +287,7 @@ class Airport extends towerHostServiceBase {
     for (Plane pl in departureQueue){
       currflights.add(new Flight()..code = pl.code
                                   ..airport = pl.airport
-                                  ..time = ""
+                                  ..time = "12:00"
                                   ..type = 3);
     }
 

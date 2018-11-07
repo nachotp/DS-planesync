@@ -18,15 +18,14 @@
 
 //go:generate protoc -I ../helloworld --go_out=plugins=grpc:../helloworld ../helloworld/helloworld.proto
 
-package main
+package torreserver
 
 import (
+	"io"
 	"log"
 	"net"
 
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	pb "google.golang.org/grpc/examples/helloworld/helloworld"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -37,9 +36,17 @@ const (
 // server is used to implement helloworld.GreeterServer.
 type server struct{}
 
-// SayHello implements helloworld.GreeterServer
-func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
-	return &pb.HelloReply{Message: "Hello " + in.Name}, nil
+func (s *server) ListFlights(stream ScreenHost_ListFlightsServer) error {
+	for {
+		flight, err := stream.Recv()
+		print(flight.Code)
+		if err == io.EOF {
+			return stream.SendAndClose(&Empty{})
+		}
+		if err != nil {
+			return err
+		}
+	}
 }
 
 func main() {
@@ -48,7 +55,8 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterGreeterServer(s, &server{})
+
+	RegisterScreenHostServer(s, &server{})
 	// Register reflection service on gRPC server.
 	reflection.Register(s)
 	if err := s.Serve(lis); err != nil {

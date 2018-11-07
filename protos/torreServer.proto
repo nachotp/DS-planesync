@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package torreserver;
+
 message Empty {
 
 }
@@ -66,5 +68,5 @@ service planeHost {
 }
 
 service screenHost {
-    rpc listLanded (stream Flight) returns (Empty);
+    rpc listFlights(stream Flight) returns (Empty) {}
 }

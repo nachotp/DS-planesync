@@ -125,8 +125,7 @@ class Airport extends towerHostServiceBase {
       ..height = height;
   }
 
-  @override
-  Stream<ArrivingPlane> listLanded(
+  Stream<ArrivingPlane> listFlights(
       ServiceCall call, ArrivingPlane request) async* {
     for (Plane plane in landings) {
       yield new ArrivingPlane()

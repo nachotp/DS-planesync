@@ -36,15 +36,17 @@ import (
 type server struct{}
 
 func (s *server) ListFlights(stream ScreenHost_ListFlightsServer) error {
+	var i int
+	i = 0
 	for {
 		flight, err := stream.Recv()
-		print(flight.Code)
 		if err == io.EOF {
-			return stream.SendAndClose(&Empty{})
+			return stream.SendMsg(&Empty{})
 		}
-		if err != nil {
-			return err
-		}
+		fmt.Printf("Vuelo %x\n", i)
+		i++
+		fmt.Printf("%s\n", flight.Code)
+
 	}
 }
 
@@ -59,9 +61,8 @@ func main() {
 	fmt.Scan(&twIP)
 	fmt.Print("Ingrese puerto de la torre de control: ")
 	fmt.Scan(&twPort)
-	/*
-		Código de conectarse como cliente a la torre y enviar su ip:puerto
-	*/
+	fmt.Print("\n")
+
 	conn, _ := grpc.Dial(fmt.Sprintf("%s:%d", twIP, twPort), grpc.WithInsecure())
 	c := NewTowerHostClient(conn)
 	ctx, _ := context.WithTimeout(context.Background(), time.Second)

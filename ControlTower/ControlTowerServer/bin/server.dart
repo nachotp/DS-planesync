@@ -71,7 +71,7 @@ class Screen {
     stub = new screenHostClient(channel);
   }
 
-  void refreshScreen(List<Flight> flights)  { 
+  void refreshScreen(List<Flight> flights) async { 
     stub.listFlights(Stream.fromIterable(flights));
   }
 
@@ -99,6 +99,7 @@ class Airport extends towerHostServiceBase {
     departures = new List<Plane>.filled(takeoffAmount, new Plane.blank());
     landingQueue = new List<Plane>();
     departureQueue = new List<Plane>();
+    connectedScreens = new List<Screen>();
     landingHeights = HeightQueue(1);
     departureHeights = HeightQueue(2);
     this.airports = airports;
@@ -251,17 +252,20 @@ class Airport extends towerHostServiceBase {
 
   @override
   Future<Empty> screenConnect(ServiceCall call, ScreenInfo request) async{
+    print("Pantalla conectada!");
     connectedScreens.add(Screen(request.ip, request.port));
     return new Empty();
   }
 
   void refreshScreens() async{
-    List<Flight> currflights;
+    final List<Flight> currflights = new List<Flight>();
     for (Plane pl in landings){
-      currflights.add(new Flight()..code = pl.code
-                                  ..airport = pl.airport
-                                  ..time = ""
-                                  ..type = 0);
+      if (pl.code != ""){
+        currflights.add(new Flight()..code = pl.code
+                                    ..airport = pl.airport
+                                    ..time = ""
+                                    ..type = 0);
+      }
     }
 
     for (Plane pl in landingQueue){
@@ -272,10 +276,12 @@ class Airport extends towerHostServiceBase {
     }
 
     for (Plane pl in departures){
-      currflights.add(new Flight()..code = pl.code
-                                  ..airport = pl.airport
-                                  ..time = ""
-                                  ..type = 2);
+      if (pl.code != ""){
+        currflights.add(new Flight()..code = pl.code
+                                    ..airport = pl.airport
+                                    ..time = ""
+                                    ..type = 2);
+      }
     }
 
     for (Plane pl in departureQueue){

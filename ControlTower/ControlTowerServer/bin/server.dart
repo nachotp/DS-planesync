@@ -59,6 +59,24 @@ class HeightQueue {
   }
 }
 
+class Screen {
+  ClientChannel channel;
+  screenHostClient stub;
+  
+  Screen(String ip, int port){
+    channel = new ClientChannel(ip,
+        port: port,
+        options: const ChannelOptions(
+            credentials: const ChannelCredentials.insecure()));
+    stub = new screenHostClient(channel);
+  }
+
+  void refreshScreen(List<Flight> flights)  { 
+    stub.listFlights(Stream.fromIterable(flights));
+  }
+
+}
+
 class Airport extends towerHostServiceBase {
   String name;
   int landingAmount;
@@ -69,6 +87,7 @@ class Airport extends towerHostServiceBase {
   HeightQueue landingHeights;
   List<Plane> departureQueue;
   HeightQueue departureHeights;
+  List<Screen> connectedScreens;
   Map<String, AirportInfo> airports;
 
   Airport(String name, int landingAmount, int takeoffAmount,
@@ -118,20 +137,12 @@ class Airport extends towerHostServiceBase {
           "Avión ${request.code} - ${request.ip}:${request.port} en espera de aterrizaje a ${height * 200 + 3000} pies de altura");
     }
 
+    refreshScreens();
     return new Runway()
       ..runway = idx_pista
       ..airportName = this.name
       ..preCode = preCode
       ..height = height;
-  }
-
-  Stream<ArrivingPlane> listFlights(
-      ServiceCall call, ArrivingPlane request) async* {
-    for (Plane plane in landings) {
-      yield new ArrivingPlane()
-        ..code = plane.code
-        ..srcAirport = this.name;
-    }
   }
 
   @override
@@ -176,7 +187,7 @@ class Airport extends towerHostServiceBase {
       }
       airprint("Avión ${request.code} en espera de despegue");
     }
-
+    refreshScreens();
     return new Runway()
       ..runway = idx_pista
       ..airportName = this.name
@@ -234,7 +245,49 @@ class Airport extends towerHostServiceBase {
             "La pista de aterrizaje asignada para ${landingPlane.code} es la ${j + 1}");
       }
     }
+    refreshScreens();
     return airports[request.airportName];
+  }
+
+  @override
+  Future<Empty> screenConnect(ServiceCall call, ScreenInfo request) async{
+    connectedScreens.add(Screen(request.ip, request.port));
+    return new Empty();
+  }
+
+  void refreshScreens() async{
+    List<Flight> currflights;
+    for (Plane pl in landings){
+      currflights.add(new Flight()..code = pl.code
+                                  ..airport = pl.airport
+                                  ..time = ""
+                                  ..type = 0);
+    }
+
+    for (Plane pl in landingQueue){
+      currflights.add(new Flight()..code = pl.code
+                                  ..airport = pl.airport
+                                  ..time = ""
+                                  ..type = 1);
+    }
+
+    for (Plane pl in departures){
+      currflights.add(new Flight()..code = pl.code
+                                  ..airport = pl.airport
+                                  ..time = ""
+                                  ..type = 2);
+    }
+
+    for (Plane pl in departureQueue){
+      currflights.add(new Flight()..code = pl.code
+                                  ..airport = pl.airport
+                                  ..time = ""
+                                  ..type = 3);
+    }
+
+    for (Screen sc in connectedScreens){
+      sc.refreshScreen(currflights);
+    }
   }
 }
 

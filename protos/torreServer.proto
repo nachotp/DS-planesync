@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package torreserver;
+package main;
 
 message Empty {
 
@@ -43,7 +43,7 @@ message Flight {
     string code = 1;
     string time = 2;
     string airport = 3;
-    bool type = 4;
+    int32 type = 4;
 }
 
 message planeHeight {
@@ -55,11 +55,17 @@ message AirportInfo {
     int32 port = 2;
 }
 
+message ScreenInfo {
+    string ip = 1;
+    int32 port = 2;
+}
+
 service towerHost {
     rpc requestLanding(ArrivingPlane) returns (Runway);
     rpc requestTakeoff(DepartingPlane) returns (Runway);
     rpc checkTakeoff(PlaneData) returns (TakeoffStatus);
     rpc takeoff (DepartingPlane) returns (AirportInfo);
+    rpc screenConnect(ScreenInfo) returns (Empty);
 }
 
 service planeHost {

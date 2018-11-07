@@ -18,19 +18,18 @@
 
 //go:generate protoc -I ../helloworld --go_out=plugins=grpc:../helloworld ../helloworld/helloworld.proto
 
-package torreserver
+package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net"
+	"time"
 
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-)
-
-const (
-	port = ":50051"
 )
 
 // server is used to implement helloworld.GreeterServer.
@@ -50,7 +49,24 @@ func (s *server) ListFlights(stream ScreenHost_ListFlightsServer) error {
 }
 
 func main() {
-	lis, err := net.Listen("tcp", port)
+	var port, twPort int32
+	var ip, twIP string
+	fmt.Print("Ingrese ip de la pantalla: ")
+	fmt.Scan(&ip)
+	fmt.Print("Ingrese puerto de la pantalla: ")
+	fmt.Scan(&port)
+	fmt.Print("Ingrese ip de la torre de control: ")
+	fmt.Scan(&twIP)
+	fmt.Print("Ingrese puerto de la torre de control: ")
+	fmt.Scan(&twPort)
+	/*
+		Código de conectarse como cliente a la torre y enviar su ip:puerto
+	*/
+	conn, _ := grpc.Dial(fmt.Sprintf("%s:%d", twIP, twPort), grpc.WithInsecure())
+	c := NewTowerHostClient(conn)
+	ctx, _ := context.WithTimeout(context.Background(), time.Second)
+	c.ScreenConnect(ctx, &ScreenInfo{Ip: ip, Port: port})
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

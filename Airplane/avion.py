@@ -33,7 +33,7 @@ class Avion():
                 return DepartingPlane(code=self.numero, runway = self.rwy, airportName = destino, height = self.altura)
 
         def getArrivingPlane(self): #retorna un ArrivingPlane instanciado
-                return ArrivingPlane(code=self.numero, srcAirport=self.torre,ip= self.ip, port = self.puerto)
+                return ArrivingPlane(code=self.numero, srcAirport="", ip= self.ip, port = self.puerto)
  
         def revisarPeso(self): #revisa si se debe quitar combustible y/o pasajeros
                 self.planeprint("¡¡¡¡ Peso excedido !!!!")              
@@ -94,14 +94,14 @@ class Avion():
                 self.actualFuel = int(self.actualFuel + fuel) #actualizar el combustible        
                 self.actualizarPeso()#actualizar el peso del avion
 
-        def subirPasajeros(self):
+        def subirPasajeros(self): # funcion para subir pasajeros al avion
                 self.pasajeros = self.planeinput("Ingrese la cantidad de pasajeros en el vuelo (se recomienda no agregar más de "+ str(int((self.pesoMax-self.pesoActual)/75)) +" pasajeros):")
                 self.actualizarPeso()
 
-        def verAltura(self):
+        def verAltura(self): # muestra la altura asignada al avion
                 return str(self.altura*200 + 3000)
 
-        def takeoffMsg(self):
+        def takeoffMsg(self): # mensaje mostrado cuando el avion es autorizado a despegar
                 self.planeprint("Todos los pasajeros a bordo y combustible cargado.")
                 self.planeprint("Puertas en automático, cross check y reportar")
                 self.planeprint("Cabina asegurada")
@@ -109,126 +109,126 @@ class Avion():
                 self.planeinput("Presione enter para despegar")
                 self.planeprint("¡¡ Despegados !!")
 
-        def landingMsg(self,aeropuerto):
+        def landingMsg(self,aeropuerto): # mensaje mostrado cuando el avion es autorizado a aterrizar
                 self.planeprint("Autorizados para aterrizar en pista " + str(self.rwy))
                 self.planeprint("¡¡¡¡Bienvenidos a " + aeropuerto + "!!!!")
 
-        def landingSetup(self):
+        def landingSetup(self): # configuracion del avion tras aterrizar (sin pasajeros y reducir combustible)
                 self.pasajeros = 0
                 self.planeprint("Pasando por el Gate...")
                 self.planeprint("Pasajeros han descendido del avión.")
                 self.actualFuel = self.actualFuel - randint(int(self.actualFuel*1/5), self.actualFuel)
                 self.actualizarPeso()
         
-        def updateInfo(self, resp):
+        def updateInfo(self, resp): #actualizar informacion de altura y pista
                 self.altura = resp.height
                 self.rwy = resp.runway
 
-def aterrizar(avion):
-    with grpc.insecure_channel(avion.torre) as channel:
-        stub = towerHostStub(channel)
+def aterrizar(avion): # funcion que manipula todo el aterrizaje del avion
+    with grpc.insecure_channel(avion.torre) as channel: # creacion del canal de comunicacion
+        stub = towerHostStub(channel) # creacion del stub
         avion.planeinput("Presione enter para aterrizar")
         avion.planeprint(avion.numero +", establecidos en radial de pista.")
-        respuesta =stub.requestLanding(avion.getArrivingPlane())
-        avion.updateInfo(respuesta)
+        respuesta =stub.requestLanding(avion.getArrivingPlane()) # solicitar aterrizaje
+        avion.updateInfo(respuesta) # actualizar info del avion
 
-        if(avion.rwy==-1):
-                if(respuesta.preCode==""):
+        if(avion.rwy==-1):#Esperar que la pista este desocupada
+                if(respuesta.preCode==""): #si no hay cola
                         avion.planeprint("Pista ocupada, mantener " + avion.verAltura() + " pies a la espera de autorización.")
                 else:
                         avion.planeprint("En cola de aterrizaje, antecedido por "+ respuesta.preCode + ", mantener " + avion.verAltura() + " pies")
                
-                while(avion.rwy==-1):
+                while(avion.rwy==-1): # Esperar mientras no se desocupe
                         pass
 
-        avion.landingMsg(respuesta.airportName)
-        avion.landingSetup()
+        avion.landingMsg(respuesta.airportName) #imprimir mensaje de aterrizaje
+        avion.landingSetup() # configurar el avion tras aterrizar
 
-def despegar(avion):
-    with grpc.insecure_channel(avion.torre) as channel:
-        stub = towerHostStub(channel)
+def despegar(avion): # funcion que controla todo lo que ocurre para despegar el avion
+    with grpc.insecure_channel(avion.torre) as channel: # creacion del canal de comunicacion
+        stub = towerHostStub(channel) # creacion del stub
         avion.planeprint("Combustible: " + str(avion.actualFuel) + "/" + str(avion.maxFuel) + " Peso: " + str(avion.pesoActual) + "/" + str(avion.pesoMax))
         carga = avion.planeinput("¿Desea cargar combustible? (se debe despegar con 4/5 del combustible máximo)(s/n)")
         
-        if(carga=="s"):
+        if(carga=="s"): #Cargar combustible si es requerido
                 avion.repostar()
         
-        avion.subirPasajeros()
+        avion.subirPasajeros() #subir pasajeros al avion
         avion.planeinput("Presione enter para solicitar pista de despegue.")
         dest = avion.planeinput("Ingrese destino: ")
-        check = stub.checkTakeoff(avion.getPlanedata()) 
+        check = stub.checkTakeoff(avion.getPlanedata()) # verificar si el avion cumple con reglas minimo de peso y combustible
         avion.planeprint("Verificando combustible y peso del avión!!.")
         
-        while(check.errorCode != 0):
-                if(check.errorCode == 1):
+        while(check.errorCode != 0): # si el avion no cumple las reglas
+                if(check.errorCode == 1): # si es que le falta combustible
                         avion.planeprint("Combustible insuficiente! El tanque debe estar al menos a 4/5 de capacidad máxima, se deben cargar por lo menos " + str((avion.maxFuel*4/5)-avion.actualFuel) + " litros.")
                         avion.repostar()      
-                else:
+                else: # si excede el peso
                         avion.revisarPeso()
-                check = stub.checkTakeoff(avion.getPlanedata())
+                check = stub.checkTakeoff(avion.getPlanedata()) # verificar si ahora se cumplen las reglas
        
-        auth = stub.requestTakeoff(avion.getDepartingPlane(dest))
-        avion.updateInfo(auth)
+        auth = stub.requestTakeoff(avion.getDepartingPlane(dest)) # solicitar despegue
+        avion.updateInfo(auth) # actualizar info del avion 
         avion.planeprint("Pidiendo instrucciones para despegar...")
         
-        if(avion.rwy==-1):
-                if(auth.preCode==""):
+        if(avion.rwy==-1): # Esperar que la pista este desocupada
+                if(auth.preCode==""): # Si no hay cola de despegue
                         avion.planeprint("Pista ocupada, mantener posición hasta nuevo aviso.")
                 else:
                         avion.planeprint("En cola de despegue, antecedido por "+ auth.preCode + ", mantener posición hasta nuevo aviso.")
                 
-                while(avion.rwy==-1):
+                while(avion.rwy==-1): # Esperar mientras no se desocupe
                         pass
 
-        avion.takeoffMsg()
-        aeropuerto = stub.takeoff(avion.getDepartingPlane(dest))
-        avion.torre = str(aeropuerto.ip) + ":" +  str(aeropuerto.port)
+        avion.takeoffMsg() # Mostrar mensajes de despegue
+        aeropuerto = stub.takeoff(avion.getDepartingPlane(dest)) # despegar el avion de la pista
+        avion.torre = str(aeropuerto.ip) + ":" +  str(aeropuerto.port) # actualizar aeropuerto al nuevo destino
         
 
 
-class Airplane(planeHostServicer):
+class Airplane(planeHostServicer): #clase que implementa los procedimientos llamados remotamente
         def __init__(self,plane):
                 self.avion = plane
 
-        def notifyLanding(self, request, context):
+        def notifyLanding(self, request, context): # usado para notificar que se aterrizo
                 self.avion.rwy = request.runway
                 return planeHeight(height=self.avion.altura)
 
-        def notifyDeparture(self, request, context):
+        def notifyDeparture(self, request, context): # usado para notificar que se despego
                 self.avion.rwy = request.runway
                 self.avion.altura = request.height
                 return Empty()
 
-avion = input("Bienvenido al vuelo!\nNombre de la Aerolínea y número de Avión:\n").split()
+###MAIN
+
+#definicion de caracteristicas del avion
+avion = input("Bienvenido al vuelo!\nNombre de la Aerolínea y número de Avión:\n").split() #separacion de datos de aerolinea y callsign
 aerolinea = avion[0]
 numero = avion[1]
 peso = int(input("Peso Máximo de carga [kg]:\n"))
 combustible = int(input("Capacidad del tanque de combustible [lt] (debe ser a lo sumo " + str(peso) + " [lt]):\n"))
-while(1):
+while(1): # verificar que capacidad de combustible ingresado sea menor al peso maximo
         if(combustible>peso):
                 print("Caracteristica no compatible con peso del avion. Capacidad debe ser a lo sumo " + str(peso) + " [lt] ")
                 combustible = int(input("Capacidad del tanque de combustible [lt]:\n"))
         else:
                 break
-
-
-#MAIN
 ip = input("IP del avión:\n")
 port = int(input("Puerto servidor del avión:\n"))
 torre_inicial = input("Torre de Control inicial:\n")
 port1 = input("Puerto de la Torre de Control:\n")
-torre_inicial = torre_inicial + ":" + str(port1)
+torre_inicial = torre_inicial + ":" + str(port1) # asignar torre inicial
 altura = 10000
-plane = Avion(aerolinea, numero,0,combustible,peso,altura,torre_inicial,0,ip,port)
-server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+plane = Avion(aerolinea, numero,0,combustible,peso,altura,torre_inicial,0,ip,port) #crear el avion
+server = grpc.server(futures.ThreadPoolExecutor(max_workers=10)) #crear el servidor
 add_planeHostServicer_to_server(Airplane(plane),server)
-server.add_insecure_port('0.0.0.0:'+str(port))
-server.start()
+server.add_insecure_port('0.0.0.0:'+str(port)) 
+server.start() # iniciar el servidor
 continuar = "s"
 
-while(continuar=="s"):
-        aterrizar(plane)
-        despegar(plane)
+while(continuar=="s"): # verificar si el avion seguira su vuelo o no
+        aterrizar(plane) # aterrizar
+        despegar(plane) # despegar
         continuar = plane.planeinput("¿Desea continuar volando? (s/n)")
 
 plane.planeprint("El avión " + plane.numero + " ha terminado su vuelo!!")

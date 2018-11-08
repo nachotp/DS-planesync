@@ -243,6 +243,7 @@ class Flight extends $pb.GeneratedMessage {
     ..aOS(2, 'time')
     ..aOS(3, 'airport')
     ..a<int>(4, 'type', $pb.PbFieldType.O3)
+    ..a<int>(5, 'runway', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
@@ -279,6 +280,11 @@ class Flight extends $pb.GeneratedMessage {
   set type(int v) { $_setSignedInt32(3, v); }
   bool hasType() => $_has(3);
   void clearType() => clearField(4);
+
+  int get runway => $_get(4, 0);
+  set runway(int v) { $_setSignedInt32(4, v); }
+  bool hasRunway() => $_has(4);
+  void clearRunway() => clearField(5);
 }
 
 class planeHeight extends $pb.GeneratedMessage {

@@ -1,18 +1,21 @@
 import 'dart:async';
+import 'dart:core';
 import 'dart:io';
-
 import 'package:grpc/grpc.dart';
 
 import 'package:controltower/src/generated/torreServer.pb.dart';
 import 'package:controltower/src/generated/torreServer.pbgrpc.dart';
 
+// Clase Plane que se utiliza para gestionar info y conexión al servidor de cada avión
 class Plane {
   String code;
   String airport;
   ClientChannel channel;
   planeHostClient stub;
   String ip;
+  DateTime time;
   int height;
+
   Plane(String code, String airport, String ip, int port) {
     this.code = code;
     this.airport = airport;
@@ -28,12 +31,12 @@ class Plane {
     this.code = this.airport = "";
   }
 
-  @override
-  String toString() {
-    return this.code;
+  String getTime(){
+    return "${time.hour}:${time.minute}";
   }
 }
 
+// Clase HeightQueue se utiliza para gestionar asignación de alturas disponibles para aterrizaje/despegue
 class HeightQueue {
   List<int> queue;
   int currHeight;
@@ -43,6 +46,7 @@ class HeightQueue {
     this.queue = new List<int>();
   }
 
+  // Retorna siguiente altura habilitada
   int getHeight() {
     int height;
     if (queue.isEmpty) {
@@ -54,6 +58,7 @@ class HeightQueue {
     }
   }
 
+  // Encola altura disponible para su asignación
   void enqueue(int height) {
     queue.insert(0, height);
   }
@@ -71,6 +76,7 @@ class Screen {
     stub = new screenHostClient(channel);
   }
 
+  // Le entrega la nueva info de vuelos a la pantalla
   void refreshScreen(List<Flight> flights) async { 
     stub.listFlights(Stream.fromIterable(flights));
   }
@@ -121,9 +127,8 @@ class Airport extends towerHostServiceBase {
     for (var i = 0; i < this.landingAmount; i++) {
       if (this.landings[i].code == "") {
         idx_pista = i + 1;
-        landings[i] = arrPlane;
-        airprint(
-            "La pista de aterrizaje asignada para ${request.code} - ${request.ip}:${request.port} es la $idx_pista");
+        landings[i] = arrPlane..time = DateTime.now();
+        airprint("La pista de aterrizaje asignada para ${request.code} es la $idx_pista");
         break;
       }
     }
@@ -134,8 +139,7 @@ class Airport extends towerHostServiceBase {
       if (landingQueue.length > 1) {
         preCode = landingQueue[1].code;
       }
-      airprint(
-          "Avión ${request.code} - ${request.ip}:${request.port} en espera de aterrizaje a ${height * 200 + 3000} pies de altura");
+      airprint("Avión ${request.code} en espera de aterrizaje a ${height * 200 + 3000} pies de altura");
     }
 
     refreshScreens();
@@ -149,8 +153,7 @@ class Airport extends towerHostServiceBase {
   @override
   Future<Runway> requestTakeoff(
       ServiceCall call, DepartingPlane request) async {
-    airprint(
-        "${request.code} en ${request.runway} solicitando pista para despegar...");
+    airprint("${request.code} en ${request.runway} solicitando pista para despegar...");
     var idx_pista = -1;
     String preCode = "";
     int height = 0;
@@ -159,9 +162,11 @@ class Airport extends towerHostServiceBase {
         height = departureHeights.getHeight();
         idx_pista = i + 1;
         departures[i] = landings[request.runway - 1];
+        departures[i].airport = request.airportName;
+        departures[i].time = DateTime.now();
+
         landings[request.runway - 1] = new Plane.blank();
-        airprint(
-            "La pista de despegue asignada para ${request.code} es la $idx_pista  con despegue a altura ${height * 200 + 3000} pies");
+        airprint("La pista de despegue asignada para ${request.code} es la $idx_pista con despegue a altura ${height * 200 + 3000} pies");
 
         if (landingQueue.isNotEmpty) {
           final Plane landingPlane = landingQueue.removeLast();
@@ -174,8 +179,7 @@ class Airport extends towerHostServiceBase {
                   .height;
           landingHeights.enqueue(arrHeight);
           landings[request.runway - 1] = landingPlane;
-          airprint(
-              "La pista de aterrizaje asignada para ${landingPlane.code} es la ${request.runway}");
+          airprint("La pista de aterrizaje asignada para ${landingPlane.code} es la ${request.runway}");
         }
         break;
       }
@@ -183,6 +187,8 @@ class Airport extends towerHostServiceBase {
 
     if (idx_pista == -1) {
       departureQueue.insert(0, landings[request.runway - 1]);
+      departureQueue[0].airport = request.airportName;
+      departureQueue[0].time = DateTime.now();
       if (departureQueue.length > 1) {
         preCode = departureQueue[1].code;
       }
@@ -223,8 +229,7 @@ class Airport extends towerHostServiceBase {
         ..airportName = this.name
         ..preCode = ""
         ..height = height);
-      airprint(
-          "La pista de despegue asignada para ${departingPlane.code} es la ${request.runway} con despegue a altura ${height * 200 + 3000} pies");
+      airprint("La pista de despegue asignada para ${departingPlane.code} es la ${request.runway} con despegue a altura ${height * 200 + 3000} pies");
       departures[request.runway - 1] = departingPlane;
       int j;
       for (var i = 0; i < this.landingAmount; i++) {
@@ -242,8 +247,7 @@ class Airport extends towerHostServiceBase {
           ..airportName = this.name
           ..preCode = "");
         landings[j] = landingPlane;
-        airprint(
-            "La pista de aterrizaje asignada para ${landingPlane.code} es la ${j + 1}");
+        airprint("La pista de aterrizaje asignada para ${landingPlane.code} es la ${j + 1}");
       }
     }
     refreshScreens();
@@ -257,38 +261,37 @@ class Airport extends towerHostServiceBase {
     return new Empty();
   }
 
-  void refreshScreens() async{
+  void refreshScreens() async {
     final List<Flight> currflights = new List<Flight>();
+    int i = 1;
     for (Plane pl in landings){
-      if (pl.code != ""){
+      if (pl.code != "" && !departureQueue.contains(pl)){
         currflights.add(new Flight()..code = pl.code
                                     ..airport = pl.airport
-                                    ..time = "12:00"
-                                    ..type = 0);
+                                    ..time = pl.getTime()
+                                    ..type = 0
+                                    ..runway = i);
       }
+      i++;
     }
-
-    for (Plane pl in landingQueue){
-      currflights.add(new Flight()..code = pl.code
-                                  ..airport = pl.airport
-                                  ..time = "12:00"
-                                  ..type = 1);
-    }
-
+    i = 1;
     for (Plane pl in departures){
       if (pl.code != ""){
         currflights.add(new Flight()..code = pl.code
                                     ..airport = pl.airport
-                                    ..time = "12:00"
-                                    ..type = 2);
+                                    ..time = pl.getTime()
+                                    ..type = 1
+                                    ..runway = i);
       }
+      i++;
     }
 
     for (Plane pl in departureQueue){
       currflights.add(new Flight()..code = pl.code
                                   ..airport = pl.airport
-                                  ..time = "12:00"
-                                  ..type = 3);
+                                  ..time = pl.getTime()
+                                  ..type = 1
+                                  ..runway = 0);
     }
 
     for (Screen sc in connectedScreens){
@@ -298,6 +301,7 @@ class Airport extends towerHostServiceBase {
 }
 
 Future<Null> main(List<String> args) async {
+  // Seteo de parametros de conexión
   final String address = "0.0.0.0";
   print("✈  TorreOS 0.7.5 ✈");
   print("Ingrese puerto del servidor:");

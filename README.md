@@ -22,6 +22,7 @@ En el directorio "Airplane" ejecutar:
     pip install grpcio
     python avion.py
 ```  
+Con esto se iniciará el programa, se solicitará al usuario las distintas características del avión, incluyendo la ip y puerto del avión y las de la torre inicial. Luego se pedira apretar enter para aterrizar el avión creado, luego el avión aterrizará. A continuación, el usuario podrá cargar combustible presionando la tecla "s" en consola, en caso contrario no se pedira cargar combustible. Luego se le pedirá al usuario ingresar la cantidad de pasajeros a bordo. Tras esto, se le solicitará presionar enter para pedir una písta de despegue, para luego ingresar el aeropuerto de destino (nombre). Se verificara si el avion cumple con las reglas, tras lo cual nuevamente se pedira ingresar combustible y pasajeros segun sea requerido (aumento o disminucion de estos). Si se cumplen las reglas, el avión esperará una pista disponible y despegará. Finalmente, se preguntará al usuario si quiere seguir con la ejecución, debe presionar "s" para seguir, o "n" para terminar con la ejecución.
 
 ### Pantalla de Información - Go
 Para utilizarlo se debe tener instalado [Go](https://golang.org/) y realizar lo siguiente.

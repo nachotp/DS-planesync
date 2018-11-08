@@ -312,7 +312,7 @@ class Airport extends towerHostServiceBase {
 Future<Null> main(List<String> args) async {
   // Seteo de parametros de conexión
   final String address = "0.0.0.0";
-  print("✈  TorreOS 0.7.5 ✈");
+  print("✈  TorreOS 1.2.8 ✈");
   print("Ingrese puerto del servidor:");
   final int port = int.parse(stdin.readLineSync());
   print("[Torre de control] Ingrese nombre del aeropuerto:");

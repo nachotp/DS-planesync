@@ -1,5 +1,8 @@
 # Tarea 2 Sistemas Distribuidos
-  
+
+Ignacio Tampe Palma - 201573514-k
+Franco Zalavari Palma - 201573501-8
+
 ## Ambiente y ejecución:  
 El sistema está implementado en Python 3, Go y Dart.  
 

@@ -44,6 +44,7 @@ message Flight {
     string time = 2;
     string airport = 3;
     int32 type = 4;
+    int32 runway = 5;
 }
 
 message planeHeight {

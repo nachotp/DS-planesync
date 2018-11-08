@@ -63,6 +63,7 @@ const Flight$json = const {
     const {'1': 'time', '3': 2, '4': 1, '5': 9, '10': 'time'},
     const {'1': 'airport', '3': 3, '4': 1, '5': 9, '10': 'airport'},
     const {'1': 'type', '3': 4, '4': 1, '5': 5, '10': 'type'},
+    const {'1': 'runway', '3': 5, '4': 1, '5': 5, '10': 'runway'},
   ],
 };
 

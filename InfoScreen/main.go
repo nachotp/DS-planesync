@@ -46,6 +46,7 @@ func main() {
 	var port, twPort int32
 	var ip, twIP string
 	var aeropuerto *AirportName
+	// ingresar ips y puertos
 	fmt.Print("Ingrese ip de la pantalla: ")
 	fmt.Scan(&ip)
 	fmt.Print("Ingrese puerto de la pantalla: ")
@@ -56,7 +57,7 @@ func main() {
 	fmt.Scan(&twPort)
 	fmt.Print("\n")
 
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", twIP, twPort), grpc.WithInsecure())
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", twIP, twPort), grpc.WithInsecure()) 
 	c := NewTowerHostClient(conn)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -70,7 +71,6 @@ func main() {
 	s := grpc.NewServer()
 
 	RegisterScreenHostServer(s, &server{aeropuerto.Name})
-	// Register reflection service on gRPC server.
 	reflection.Register(s)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

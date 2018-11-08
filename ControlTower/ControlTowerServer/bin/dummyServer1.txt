@@ -3,6 +3,6 @@ MAS
 1
 2
 SOS
-localhost
+192.168.1.115
 50052
 x

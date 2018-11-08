@@ -28,10 +28,10 @@ class towerHostClient extends Client {
       '/main.towerHost/takeoff',
       (DepartingPlane value) => value.writeToBuffer(),
       (List<int> value) => new AirportInfo.fromBuffer(value));
-  static final _$screenConnect = new ClientMethod<ScreenInfo, Empty>(
+  static final _$screenConnect = new ClientMethod<ScreenInfo, AirportName>(
       '/main.towerHost/screenConnect',
       (ScreenInfo value) => value.writeToBuffer(),
-      (List<int> value) => new Empty.fromBuffer(value));
+      (List<int> value) => new AirportName.fromBuffer(value));
 
   towerHostClient(ClientChannel channel, {CallOptions options})
       : super(channel, options: options);
@@ -68,7 +68,7 @@ class towerHostClient extends Client {
     return new ResponseFuture(call);
   }
 
-  ResponseFuture<Empty> screenConnect(ScreenInfo request,
+  ResponseFuture<AirportName> screenConnect(ScreenInfo request,
       {CallOptions options}) {
     final call = $createCall(
         _$screenConnect, new $async.Stream.fromIterable([request]),
@@ -109,13 +109,13 @@ abstract class towerHostServiceBase extends Service {
         false,
         (List<int> value) => new DepartingPlane.fromBuffer(value),
         (AirportInfo value) => value.writeToBuffer()));
-    $addMethod(new ServiceMethod<ScreenInfo, Empty>(
+    $addMethod(new ServiceMethod<ScreenInfo, AirportName>(
         'screenConnect',
         screenConnect_Pre,
         false,
         false,
         (List<int> value) => new ScreenInfo.fromBuffer(value),
-        (Empty value) => value.writeToBuffer()));
+        (AirportName value) => value.writeToBuffer()));
   }
 
   $async.Future<Runway> requestLanding_Pre(
@@ -138,7 +138,7 @@ abstract class towerHostServiceBase extends Service {
     return takeoff(call, await request);
   }
 
-  $async.Future<Empty> screenConnect_Pre(
+  $async.Future<AirportName> screenConnect_Pre(
       ServiceCall call, $async.Future request) async {
     return screenConnect(call, await request);
   }
@@ -149,7 +149,8 @@ abstract class towerHostServiceBase extends Service {
   $async.Future<TakeoffStatus> checkTakeoff(
       ServiceCall call, PlaneData request);
   $async.Future<AirportInfo> takeoff(ServiceCall call, DepartingPlane request);
-  $async.Future<Empty> screenConnect(ServiceCall call, ScreenInfo request);
+  $async.Future<AirportName> screenConnect(
+      ServiceCall call, ScreenInfo request);
 }
 
 class planeHostClient extends Client {

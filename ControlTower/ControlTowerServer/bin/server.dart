@@ -64,6 +64,7 @@ class HeightQueue {
   }
 }
 
+// Clase Screen se utiliza para enviarle la info a las pantallas
 class Screen {
   ClientChannel channel;
   screenHostClient stub;
@@ -83,6 +84,7 @@ class Screen {
 
 }
 
+// Servidor del aeropuerto que maneja toda la lógica de este.
 class Airport extends towerHostServiceBase {
   String name;
   int landingAmount;
@@ -115,6 +117,7 @@ class Airport extends towerHostServiceBase {
     print('[Torre de control - ${this.name}] ${input}');
   }
 
+  // Permite asignar pistas de aterrizaje o hacer que aviones esperen su turno.
   @override
   Future<Runway> requestLanding(ServiceCall call, ArrivingPlane request) async {
     airprint("${request.code} solicitando pista para aterrizar...");
@@ -129,6 +132,7 @@ class Airport extends towerHostServiceBase {
         idx_pista = i + 1;
         landings[i] = arrPlane..time = DateTime.now();
         airprint("La pista de aterrizaje asignada para ${request.code} es la $idx_pista");
+        refreshScreens();
         break;
       }
     }
@@ -142,7 +146,6 @@ class Airport extends towerHostServiceBase {
       airprint("Avión ${request.code} en espera de aterrizaje a ${height * 200 + 3000} pies de altura");
     }
 
-    refreshScreens();
     return new Runway()
       ..runway = idx_pista
       ..airportName = this.name
@@ -150,6 +153,8 @@ class Airport extends towerHostServiceBase {
       ..height = height;
   }
 
+  // Procesa asignaciones de pistas de despegue o deja encolados a los aviones.
+  // Además si se asigna una pista de despegue, se permite el aterrizaje de un avión en espera.
   @override
   Future<Runway> requestTakeoff(
       ServiceCall call, DepartingPlane request) async {
@@ -202,6 +207,7 @@ class Airport extends towerHostServiceBase {
       ..height = height;
   }
 
+  // Revisa que el peso y combustible del avión sean los correctos y no permite despegar hasta ese entonces.
   @override
   Future<TakeoffStatus> checkTakeoff(
       ServiceCall call, PlaneData request) async {
@@ -214,10 +220,11 @@ class Airport extends towerHostServiceBase {
     return new TakeoffStatus()..errorCode = errorCode;
   }
 
+  // Procesa la salida de un avión y mueve aviones que estaban en espera de pista de despegue
+  // Si se asigna una pista de despegue y hay aviones esperando, se permiten aterrizajes.
   @override
   Future<AirportInfo> takeoff(ServiceCall call, DepartingPlane request) async {
-    airprint(
-        "Avión ${request.code} ha despegado desde pista ${request.runway} en dirección a ${request.airportName}.");
+    airprint("Avión ${request.code} ha despegado desde pista ${request.runway} en dirección a ${request.airportName}.");
     departureHeights.enqueue(request.height);
     departures[request.runway - 1] = new Plane.blank();
 
@@ -254,13 +261,15 @@ class Airport extends towerHostServiceBase {
     return airports[request.airportName];
   }
 
+  // Inicializa y almacena la información de una pantalla de info.
   @override
-  Future<Empty> screenConnect(ServiceCall call, ScreenInfo request) async{
+  Future<AirportName> screenConnect(ServiceCall call, ScreenInfo request) async{
     print("Pantalla conectada!");
     connectedScreens.add(Screen(request.ip, request.port));
-    return new Empty();
+    return new AirportName()..name = this.name;
   }
 
+  // Le envía la información actualizada de vuelos a cada pantalla
   void refreshScreens() async {
     final List<Flight> currflights = new List<Flight>();
     int i = 1;

@@ -61,12 +61,16 @@ message ScreenInfo {
     int32 port = 2;
 }
 
+message AirportName {
+    string name = 1;
+}
+
 service towerHost {
     rpc requestLanding(ArrivingPlane) returns (Runway);
     rpc requestTakeoff(DepartingPlane) returns (Runway);
     rpc checkTakeoff(PlaneData) returns (TakeoffStatus);
     rpc takeoff (DepartingPlane) returns (AirportInfo);
-    rpc screenConnect(ScreenInfo) returns (Empty);
+    rpc screenConnect(ScreenInfo) returns (AirportName);
 }
 
 service planeHost {

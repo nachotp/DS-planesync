@@ -90,3 +90,10 @@ const ScreenInfo$json = const {
   ],
 };
 
+const AirportName$json = const {
+  '1': 'AirportName',
+  '2': const [
+    const {'1': 'name', '3': 1, '4': 1, '5': 9, '10': 'name'},
+  ],
+};
+

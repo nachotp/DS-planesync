@@ -377,3 +377,29 @@ class ScreenInfo extends $pb.GeneratedMessage {
   void clearPort() => clearField(2);
 }
 
+class AirportName extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = new $pb.BuilderInfo('AirportName', package: const $pb.PackageName('main'))
+    ..aOS(1, 'name')
+    ..hasRequiredFields = false
+  ;
+
+  AirportName() : super();
+  AirportName.fromBuffer(List<int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) : super.fromBuffer(i, r);
+  AirportName.fromJson(String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) : super.fromJson(i, r);
+  AirportName clone() => new AirportName()..mergeFromMessage(this);
+  AirportName copyWith(void Function(AirportName) updates) => super.copyWith((message) => updates(message as AirportName));
+  $pb.BuilderInfo get info_ => _i;
+  static AirportName create() => new AirportName();
+  static $pb.PbList<AirportName> createRepeated() => new $pb.PbList<AirportName>();
+  static AirportName getDefault() => _defaultInstance ??= create()..freeze();
+  static AirportName _defaultInstance;
+  static void $checkItem(AirportName v) {
+    if (v is! AirportName) $pb.checkItemFailed(v, _i.qualifiedMessageName);
+  }
+
+  String get name => $_getS(0, '');
+  set name(String v) { $_setString(0, v); }
+  bool hasName() => $_has(0);
+  void clearName() => clearField(1);
+}
+

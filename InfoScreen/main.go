@@ -14,27 +14,29 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-type server struct{}
+type server struct{
+	airportName string
+}
 
-func (s *server) ListFlights(stream ScreenHost_ListFlightsServer) error {
-	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 5, 0, 1, ' ', tabwriter.TabIndent)
+func (s *server) ListFlights(stream ScreenHost_ListFlightsServer) error { // funcion encargada de imprimir los vuelos en pantalla
+	w := new(tabwriter.Writer) // crear un tabwriter : una especie de tabla
+	w.Init(os.Stdout, 5, 0, 1, ' ', tabwriter.TabIndent) // inicializarlo
 	fmt.Print("[Pantalla de información - ubicación]\n")
 	fmt.Fprintln(w, "Departures\t\t\t\t|	Arrivals\t\t\t\t")
 	fmt.Fprintln(w, "-----------\t\t\t\t|	---------\t\t\t\t")
 	fmt.Fprintln(w, "Avión\tDestino\tPista\tHora\t|	Avión\tProveniente\tPista\tHora")
 	for {
-		flight, err := stream.Recv()
-		if err == io.EOF {
+		flight, err := stream.Recv() //recibir los vuelos
+		if err == io.EOF { // mientras haya stream no se hace esto
 			w.Flush()
 			fmt.Print("\n---------------------------------------------------------------\n")
 			return stream.SendMsg(&Empty{})
 		}
-		if flight.Type == 0 {
-			s := fmt.Sprintf("%s\t%s\t%d\t%s\t|	\t\t\t", flight.Code, flight.Airport, flight.Type, flight.Time)
+		if flight.Type == 0 { // si son aviones que van saliendo
+			s := fmt.Sprintf("%s\t%s\t%d\t%s\t|	\t\t\t", flight.Code, flight.Airport, flight.Runway, flight.Time)
 			fmt.Fprintln(w, s)
-		} else {
-			s := fmt.Sprintf("\t\t\t\t|	%s\t%s\t%d\t%s", flight.Code, flight.Airport, flight.Type, flight.Time)
+		} else { // si son aviones que van llegando
+			s := fmt.Sprintf("\t\t\t\t|	%s\t%s\t%d\t%s", flight.Code, flight.Airport, flight.Runway, flight.Time)
 			fmt.Fprintln(w, s)
 		}
 	}
@@ -59,14 +61,14 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
-	c.ScreenConnect(ctx, &ScreenInfo{Ip: ip, Port: port})
+	aeropuerto = c.ScreenConnect(ctx, &ScreenInfo{Ip: ip, Port: port})
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
 
-	RegisterScreenHostServer(s, &server{})
+	RegisterScreenHostServer(s, &server{airportName: aeropuerto.Name})
 	// Register reflection service on gRPC server.
 	reflection.Register(s)
 	if err := s.Serve(lis); err != nil {

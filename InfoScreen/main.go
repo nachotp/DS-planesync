@@ -17,8 +17,6 @@ import (
 type server struct{}
 
 func (s *server) ListFlights(stream ScreenHost_ListFlightsServer) error {
-	var i int
-	i = 0
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 5, 0, 1, ' ', tabwriter.TabIndent)
 	fmt.Print("[Pantalla de información - ubicación]\n")
@@ -32,9 +30,13 @@ func (s *server) ListFlights(stream ScreenHost_ListFlightsServer) error {
 			fmt.Print("\n---------------------------------------------------------------\n")
 			return stream.SendMsg(&Empty{})
 		}
-		s := fmt.Sprintf("%s\t%s\t%d\t%s\t|	\t\t\t", flight.Code, flight.Airport, flight.Type, flight.Time)
-		fmt.Fprintln(w, s)
-		i++
+		if flight.Type == 0 {
+			s := fmt.Sprintf("%s\t%s\t%d\t%s\t|	\t\t\t", flight.Code, flight.Airport, flight.Type, flight.Time)
+			fmt.Fprintln(w, s)
+		} else {
+			s := fmt.Sprintf("\t\t\t\t|	%s\t%s\t%d\t%s", flight.Code, flight.Airport, flight.Type, flight.Time)
+			fmt.Fprintln(w, s)
+		}
 	}
 }
 
